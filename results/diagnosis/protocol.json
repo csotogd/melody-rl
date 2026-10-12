@@ -26,7 +26,8 @@
     "beta": 0.02,
     "reward": "graded",
     "eval_limit": 48,
-    "gradient_checkpointing": true
+    "gradient_checkpointing": true,
+    "rollout_batch_size": 4
   },
   "changes_from_pilot": [
     "32 to 128 groups",
@@ -46,5 +47,6 @@
   "uncertainty": "Paired bootstrap over task IDs, not individual completions. Conditional on one training seed.",
   "test": "After validation, evaluate both fixed policies once on test_id with the same greedy and four-sample settings, regardless of validation outcome. OOD tests remain reserved.",
   "publication": "Publish all results, including regressions. No claim of musical quality or multi-seed robustness.",
-  "paid_compute_eur": 0
+  "paid_compute_eur": 0,
+  "sampling_implementation": "Four same-prompt completions batched on one device, same untruncated temperature-1 distribution. Both extended SFT and RL sampling evaluations use this implementation."
 }

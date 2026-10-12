@@ -49,12 +49,13 @@ def evaluate(config, data_dir, output, *, split="validation", sft_adapter=None, 
     for index, row in enumerate(rows):
         task = Task(**row["task"])
         candidates = []
+        generations = policy.generate_many(row["prompt"], count=best_of, sample=best_of > 1) if policy else None
         for candidate in range(best_of):
             if rule_based:
                 generation = {"text": teacher(task, random.Random(config["seed"] + index * best_of + candidate)),
                               "truncated": False, "tokens": 0, "seconds": 0}
             else:
-                generation = policy.generate(row["prompt"], sample=best_of > 1)
+                generation = generations[candidate]
             metrics = evaluate_score(generation["text"], task, truncated=generation["truncated"])
             candidates.append({"text": generation["text"], "truncated": generation["truncated"], "metrics": metrics})
             generated_tokens += generation["tokens"]

@@ -21,5 +21,6 @@
   "beta": 0.02,
   "reward": "graded",
   "eval_limit": 48,
-  "gradient_checkpointing": true
+  "gradient_checkpointing": true,
+  "rollout_batch_size": 4
 }

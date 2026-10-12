@@ -28,3 +28,27 @@ def test_tiny_delta_kl_is_stable():
     values = torch.tensor([-1., -2.], requires_grad=True)
     _, stats = grpo_loss(values, values.detach(), values.detach() + 1e-6, 0.)
     assert 0 <= stats["kl"] < 1e-10
+
+
+def test_batched_rollouts_trim_each_eos_and_exclude_padding():
+    class FakeModel:
+        generation_config = SimpleNamespace(eos_token_id=[9, 8])
+
+        def eval(self):
+            pass
+
+        def generate(self, **kwargs):
+            assert kwargs["input_ids"].shape == (3, 2)
+            assert kwargs["do_sample"] and kwargs["top_k"] == 0
+            return torch.tensor([[1, 2, 4, 9, 9, 9], [1, 2, 3, 4, 8, 9], [1, 2, 3, 4, 5, 6]])
+
+    policy = Policy.__new__(Policy)
+    policy.model = FakeModel()
+    policy.config = {"max_new_tokens": 4, "rollout_batch_size": 3}
+    policy.tokenizer = SimpleNamespace(eos_token_id=9, decode=lambda ids, **kwargs: str(ids))
+    policy.prompt_ids = lambda prompt: torch.tensor([[1, 2]])
+    results = policy.generate_many("test", count=3)
+    assert [r["tokens"] for r in results] == [2, 3, 4]
+    assert [r["truncated"] for r in results] == [False, False, True]
+    assert [r["ids"].shape[1] for r in results] == [4, 5, 6]
+    assert results[0]["ids"].tolist() == [[1, 2, 4, 9]]

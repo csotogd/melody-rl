@@ -77,7 +77,7 @@ def train_rl(config, data_dir, sft_adapter, output):
     for step in range(config["rl_steps"]):
         row = rows[step % len(rows)]
         task = Task(**row["task"])
-        trajectories = [policy.generate(row["prompt"], sample=True) for _ in range(config["group_size"])]
+        trajectories = policy.generate_many(row["prompt"], count=config["group_size"], sample=True)
         metrics = [evaluate_score(t["text"], task, truncated=t["truncated"]) for t in trajectories]
         scores = [reward(m, config["reward"]) for m in metrics]
         diagnostics = {"reward_mean": sum(scores) / len(scores),

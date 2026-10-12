@@ -57,8 +57,22 @@ class Policy:
         return self.tokenizer(text, return_tensors="pt", add_special_tokens=False)["input_ids"].to(self.device)
 
     def generate(self, prompt, *, sample=False):
+        return self.generate_many(prompt, count=1, sample=sample)[0]
+
+    def generate_many(self, prompt, *, count, sample=True):
+        """Batch completions of the same prompt; trim padding after each first EOS."""
+        if count < 1 or self.config.get("rollout_batch_size", 1) < 1:
+            raise ValueError("Generation count and rollout_batch_size must be positive")
         self.model.eval()
         inputs = self.prompt_ids(prompt)
+        batch_size = min(count, self.config.get("rollout_batch_size", 1))
+        results = []
+        while len(results) < count:
+            size = min(batch_size, count - len(results))
+            results.extend(self._generate_batch(inputs.repeat(size, 1), sample=sample))
+        return results
+
+    def _generate_batch(self, inputs, *, sample):
         start = time.perf_counter()
         with torch.no_grad():
             output = self.model.generate(
@@ -68,13 +82,20 @@ class Policy:
                 repetition_penalty=1.0, use_cache=True,
                 pad_token_id=self.tokenizer.eos_token_id,
             )
-        generated = output[0, inputs.shape[1]:]
         eos = self.model.generation_config.eos_token_id
         eos = [eos] if isinstance(eos, int) else (eos or [self.tokenizer.eos_token_id])
-        ended = bool(generated.numel() and generated[-1].item() in eos)
-        text = self.tokenizer.decode(generated, skip_special_tokens=True).strip()
-        return {"text": text, "ids": output.detach(), "prompt_length": inputs.shape[1],
-                "truncated": not ended, "tokens": len(generated), "seconds": time.perf_counter() - start}
+        # CPU conversion synchronizes device work before timing the complete batch.
+        generated = output[:, inputs.shape[1]:].tolist()
+        elapsed = time.perf_counter() - start
+        results = []
+        for index, tokens in enumerate(generated):
+            stop = next((i + 1 for i, token in enumerate(tokens) if token in eos), None)
+            tokens = tokens[:stop] if stop is not None else tokens
+            text = self.tokenizer.decode(tokens, skip_special_tokens=True).strip()
+            results.append({"text": text, "ids": output[index:index + 1, :inputs.shape[1] + len(tokens)].detach(),
+                            "prompt_length": inputs.shape[1], "truncated": stop is None,
+                            "tokens": len(tokens), "seconds": elapsed / len(generated)})
+        return results
 
     def logps(self, ids, prompt_length):
         # Completion only, including EOS. No prompt/padding tokens in the objective.
