@@ -31,7 +31,7 @@ def paired_comparison(before, after, *, seed=42, resamples=10000):
     a, b = [task_metrics(r) for r in before], [task_metrics(r) for r in after]
     result = {"tasks": len(ids), "candidates_per_policy": sum(len(r["candidates"]) for r in before),
               "bootstrap_seed": seed, "bootstrap_resamples": resamples,
-              "interval_note": "Paired percentile bootstrap over tasks; conditional on one training seed. Repeated samples are not independent tasks.",
+              "interval_note": "Paired percentile bootstrap over tasks; conditional on one training seed. Repeated samples are not independent tasks. A collapsed interval with no discordant tasks does not establish equivalence.",
               "metrics": {}}
     for key in a[0]:
         pairs = [(x[key], y[key]) for x, y in zip(a, b) if x[key] is not None and y[key] is not None]

@@ -1,0 +1,58 @@
+{
+  "n": 48,
+  "successes": 40,
+  "all_satisfied_rate": 0.8333333333333334,
+  "wilson_95_interval": [
+    0.7042189996260375,
+    0.9130458996054678
+  ],
+  "valid_rate": 1.0,
+  "mean_partial_all_outputs": 0.9722222222222222,
+  "repeat_rate_valid_outputs": 0.11825396825396826,
+  "unique_output_fraction_valid": 0.6041666666666666,
+  "truncated_rate": 0.0,
+  "constraint_rates_all_outputs": {
+    "bars": 1.0,
+    "meter": 0.9583333333333334,
+    "key": 1.0,
+    "range": 1.0,
+    "final": 1.0,
+    "leap": 0.875
+  },
+  "split": "validation",
+  "method": "grpo",
+  "config": {
+    "model": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "seed": 42,
+    "dataset_seed": 42,
+    "device": "auto",
+    "dtype": "float32",
+    "rank": 8,
+    "lora_alpha": 16,
+    "target_modules": [
+      "q_proj",
+      "v_proj"
+    ],
+    "max_new_tokens": 96,
+    "sft_steps": 348,
+    "sft_lr": 0.0001,
+    "rl_steps": 32,
+    "rl_lr": 1e-05,
+    "group_size": 4,
+    "clip": 0.2,
+    "beta": 0.02,
+    "reward": "graded",
+    "eval_limit": 24,
+    "gradient_checkpointing": true
+  },
+  "sft_adapter": "runs/local-study/sft/adapter",
+  "rl_adapter": "runs/local-study/grpo/adapter",
+  "resolved_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+  "best_of": 1,
+  "generated_tokens": 621,
+  "generation_seconds": 74.45409403881058,
+  "tokens_per_second": 8.34070991013996,
+  "seconds": 89.83544012496714,
+  "note": "Validation pilot; not a final test result. Diversity proxies are not musical quality."
+}

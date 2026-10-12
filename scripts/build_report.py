@@ -21,7 +21,7 @@ def copy_evidence(source, destination):
         shutil.copy2(source, destination)
 
 
-def build(run, output):
+def build(run, output, split="validation"):
     output.parent.mkdir(parents=True, exist_ok=True)
     assets = output.parent / f"{output.stem}_assets"
     assets.mkdir(exist_ok=True)
@@ -29,12 +29,20 @@ def build(run, output):
               ("grpo-eval", "Después de SFT + GRPO"), ("rules", "Generador por reglas"),
               ]
     stages.extend((path.name, f"SFT · best-of-{path.name[6:]}") for path in sorted(run.glob("bestof*")) if path.is_dir())
+    stages.append(("grpo-sampled", "SFT + GRPO · best-of-4"))
+    if split == "test_id":
+        stages = [("test-id-sft-greedy", "SFT · determinista"),
+                  ("test-id-grpo-greedy", "SFT + GRPO · determinista"),
+                  ("test-id-sft-sampled", "SFT · best-of-4"),
+                  ("test-id-grpo-sampled", "SFT + GRPO · best-of-4")]
     results = []
     for folder, label in stages:
         source = run / folder
         if not (source / "summary.json").exists():
             continue
         summary = json.loads((source / "summary.json").read_text())
+        if summary["split"] != split:
+            raise ValueError(f"Unexpected split in {source}")
         records = [json.loads(line) for line in (source / "predictions.jsonl").read_text().splitlines()]
         dest = assets / folder
         dest.mkdir(exist_ok=True)
@@ -64,9 +72,9 @@ def build(run, output):
     lines = ['<!doctype html><html lang="es"><meta charset="utf-8">',
              '<meta name="viewport" content="width=device-width, initial-scale=1"><title>melody-rl · piloto local</title>',
              '<style>body{font:16px/1.6 system-ui,sans-serif;background:#f5f4ef;color:#182823;margin:0}main{max-width:1100px;margin:auto;padding:48px 24px}h1{font-size:48px;letter-spacing:-2px;margin:8px 0}h2{margin-top:40px}.tag{color:#496a5d;text-transform:uppercase;letter-spacing:2px;font-size:12px}.intro{max-width:750px}.notice{border-left:4px solid #b08330;padding:12px 18px;background:#fff9e9}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;background:white}th,td{text-align:left;padding:14px;border-bottom:1px solid #ddd}th{font-size:13px}code,pre{font:14px/1.5 ui-monospace,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef1ed;padding:12px;border-radius:8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.card{background:white;padding:20px;border:1px solid #ddd;border-radius:12px}.pass{color:#276848}.fail{color:#9c492e}audio{width:100%;height:36px}a{color:#265a4a}.muted{color:#59685f;font-size:14px}details{margin:12px 0}footer{margin-top:48px;border-top:1px solid #ccc;padding-top:16px}</style><main>',
-             '<div class="tag">Experimento 001 · entrenamiento local</div><h1>melody-rl</h1>',
+             f'<div class="tag">Entrenamiento local · {esc(split)}</div><h1>melody-rl</h1>',
              '<p class="intro">¿Puede el post-training mejorar el cumplimiento de instrucciones musicales? Qwen3-0.6B + LoRA + GRPO, con recompensas verificables y melodías cortas.</p>',
-             '<p class="notice"><strong>Piloto de viabilidad.</strong> Esta muestra de validación es demasiado pequeña para concluir que RL mejora el modelo. El cumplimiento de restricciones no mide calidad musical. El audio es una síntesis sencilla de las notas, no audio generado por el modelo.</p>',
+             '<p class="notice"><strong>Estudio pequeño, una semilla de entrenamiento.</strong> El cumplimiento de restricciones no mide calidad musical. El audio es una síntesis sencilla de las notas, no audio generado por el modelo. Los resultados no establecen robustez entre entrenamientos independientes.</p>',
              '<p class="intro"><strong>SFT (ajuste fino supervisado)</strong>: aprende de ejemplos de melodías correctas. <strong>GRPO</strong>: es el método de aprendizaje por refuerzo (RL) que usamos después; compara melodías propuestas por el modelo y actualiza sus pesos según las reglas que cumplen. <strong>Best-of-N</strong>: genera N alternativas y elige la mejor puntuación, sin entrenamiento adicional.</p>',
              '<h2>Resultados medidos</h2><div class="scroll"><table><thead><tr><th>Método</th><th>Todas las restricciones</th><th>Formato válido</th><th>Restricciones cumplidas, media</th><th>Repetición consecutiva¹</th></tr></thead><tbody>']
     for folder, label, s, _ in results:
@@ -74,6 +82,14 @@ def build(run, output):
         low, high = s["wilson_95_interval"]
         lines.append(f'<tr><td>{esc(label)}</td><td>{s["successes"]}/{s["n"]} <span class="muted">(IC 95%: {low:.0%}–{high:.0%})</span></td><td>{s["valid_rate"]:.0%}</td><td>{s["mean_partial_all_outputs"]:.0%}</td><td>{repeat:.0%}</td></tr>' if repeat is not None else f'<tr><td>{esc(label)}</td><td>{s["successes"]}/{s["n"]}</td><td>{s["valid_rate"]:.0%}</td><td>{s["mean_partial_all_outputs"]:.0%}</td><td>Sin salidas válidas</td></tr>')
     lines.append('</tbody></table></div><p class="muted">¹ Solo salidas válidas. El generador por reglas garantiza las restricciones por construcción: es un control, no una salida del modelo.</p>')
+    sampled = [(folder, label, summary, records) for folder, label, summary, records in results if summary["best_of"] > 1]
+    if sampled:
+        lines.append('<h2>Fiabilidad de una alternativa aleatoria</h2><p>Contamos todas las alternativas generadas, antes de elegir la mejor. Esta medida permite comprobar si RL mejora la distribución de respuestas.</p><div class="scroll"><table><thead><tr><th>Modelo</th><th>Alternativas que cumplen todo</th><th>Tareas distintas</th></tr></thead><tbody>')
+        for _, label, _, records in sampled:
+            candidates = [c for record in records for c in record["candidates"]]
+            successes = sum(c["metrics"]["all_satisfied"] for c in candidates)
+            lines.append(f'<tr><td>{esc(label.replace(" · best-of-4", ""))}</td><td>{successes}/{len(candidates)} ({successes / len(candidates):.1%})</td><td>{len(records)}</td></tr>')
+        lines.append('</tbody></table></div><p class="muted">Las alternativas de una misma tarea no cuentan como tareas independientes. Los intervalos de las diferencias se calculan remuestreando tareas completas.</p>')
     lines.append('<details><summary>Coste de generación de esta evaluación</summary><div class="scroll"><table><thead><tr><th>Método</th><th>Tokens generados</th><th>Tiempo de generación</th><th>Tiempo total</th></tr></thead><tbody>')
     for _, label, summary, _ in results:
         lines.append(f'<tr><td>{esc(label)}</td><td>{summary["generated_tokens"]:,}</td><td>{summary["generation_seconds"]:.1f} s</td><td>{summary["seconds"]:.1f} s</td></tr>')
@@ -106,7 +122,14 @@ def build(run, output):
         lines.append(f'<li>{esc(label)}: <a href="{assets.name}/{folder}/summary.json">métricas</a> · <a href="{assets.name}/{folder}/predictions.jsonl">predicciones</a></li>')
     for name, _ in trainings:
         lines.append(f'<li>{name.upper()}: <a href="{assets.name}/{name}/train.jsonl">registro de entrenamiento</a></li>')
-    lines.append('</ul><p class="muted">Datos sintéticos propios · modelo Qwen3-0.6B · código MIT · no se han evaluado los conjuntos de test reservados.</p></footer></main></html>')
+    for mode in ("greedy", "sampled"):
+        comparison = run / f'{"test-id" if split == "test_id" else "validation"}-{mode}-comparison.json'
+        if comparison.exists():
+            shutil.copy2(comparison, assets / comparison.name)
+            lines.append(f'<li><a href="{assets.name}/{comparison.name}">Diferencias e intervalos por tarea · {mode}</a></li>')
+    test_note = ('El test ID se evaluó con las políticas finales fijadas; los tests de composición y longitud siguen reservados.'
+                 if (run / "test-id-grpo-sampled/summary.json").exists() else 'No se han evaluado los conjuntos de test reservados.')
+    lines.append(f'</ul><p class="muted">Datos sintéticos propios · modelo Qwen3-0.6B · código MIT · {test_note}</p></footer></main></html>')
     output.write_text('\n'.join(lines))
     print(output.resolve())
 
@@ -115,5 +138,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--run", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--split", choices=("validation", "test_id"), default="validation")
     args = parser.parse_args()
-    build(args.run, args.output)
+    build(args.run, args.output, args.split)

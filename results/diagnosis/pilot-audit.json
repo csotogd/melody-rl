@@ -1,0 +1,145 @@
+{
+  "training": {
+    "groups": 32,
+    "updates": 28,
+    "skipped_equal_reward": 4,
+    "unique_training_tasks": 32,
+    "available_training_tasks": 174,
+    "sampled_completions": 128,
+    "successful_completions": 48,
+    "valid_completions": 124,
+    "min_grad_norm": 0.7341477274894714,
+    "max_grad_norm": 5.35248327255249,
+    "last_kl": 0.013251454074634239
+  },
+  "sft_stochastic_pilot_validation": {
+    "tasks": 24,
+    "completions": 96,
+    "successes": 30,
+    "failed_constraints": {
+      "key": 29,
+      "range": 26,
+      "leap": 42,
+      "final": 15,
+      "bars": 4,
+      "meter": 5
+    }
+  },
+  "full_validation_greedy": {
+    "tasks": 48,
+    "candidates_per_policy": 48,
+    "bootstrap_seed": 42,
+    "bootstrap_resamples": 10000,
+    "interval_note": "Paired percentile bootstrap over tasks; conditional on one training seed. Repeated samples are not independent tasks.",
+    "metrics": {
+      "candidate_success": {
+        "paired_tasks": 48,
+        "before": 0.8333333333333334,
+        "after": 0.8333333333333334,
+        "difference": 0.0,
+        "difference_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "selected_success": {
+        "paired_tasks": 48,
+        "before": 0.8333333333333334,
+        "after": 0.8333333333333334,
+        "difference": 0.0,
+        "difference_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "candidate_validity": {
+        "paired_tasks": 48,
+        "before": 1.0,
+        "after": 1.0,
+        "difference": 0.0,
+        "difference_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "candidate_repetition": {
+        "paired_tasks": 48,
+        "before": 0.10634920634920636,
+        "after": 0.11825396825396826,
+        "difference": 0.011904761904761904,
+        "difference_ci95": [
+          0.0,
+          0.029761904761904757
+        ]
+      },
+      "candidate_bars": {
+        "paired_tasks": 48,
+        "before": 1.0,
+        "after": 1.0,
+        "difference": 0.0,
+        "difference_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "candidate_meter": {
+        "paired_tasks": 48,
+        "before": 0.9583333333333334,
+        "after": 0.9583333333333334,
+        "difference": 0.0,
+        "difference_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "candidate_key": {
+        "paired_tasks": 48,
+        "before": 1.0,
+        "after": 1.0,
+        "difference": 0.0,
+        "difference_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "candidate_range": {
+        "paired_tasks": 48,
+        "before": 1.0,
+        "after": 1.0,
+        "difference": 0.0,
+        "difference_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "candidate_final": {
+        "paired_tasks": 48,
+        "before": 1.0,
+        "after": 1.0,
+        "difference": 0.0,
+        "difference_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "candidate_leap": {
+        "paired_tasks": 48,
+        "before": 0.875,
+        "after": 0.875,
+        "difference": 0.0,
+        "difference_ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  },
+  "interpretation": [
+    "Increasing evaluation size measures uncertainty, not a stronger learning update.",
+    "28 updates over 32 of 174 training tasks is a short feasibility run.",
+    "Only 4 of 32 groups have zero reward variance, so total lack of reward signal is not supported.",
+    "Nonzero finite gradients and KL indicate updates, but do not prove the implementation has no bugs.",
+    "Stochastic SFT success is 30/96, distinct from greedy 21/24 and selected best-of-4 18/24.",
+    "The graded reward does not penalize repetition. Better compliance need not mean better music."
+  ]
+}
