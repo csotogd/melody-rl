@@ -26,15 +26,19 @@ def build(run, output, split="validation"):
     assets = output.parent / f"{output.stem}_assets"
     assets.mkdir(exist_ok=True)
     stages = [("base", "Modelo inicial"), ("sft-eval", "Después de SFT"),
-              ("grpo-eval", "Después de SFT + GRPO"), ("rules", "Generador por reglas"),
+              ("grpo-eval", "SFT + GRPO · reglas"), ("diverse-eval", "SFT + GRPO · variedad"),
+              ("rules", "Generador por reglas"),
               ]
     stages.extend((path.name, f"SFT · best-of-{path.name[6:]}") for path in sorted(run.glob("bestof*")) if path.is_dir())
-    stages.append(("grpo-sampled", "SFT + GRPO · best-of-4"))
+    stages.append(("grpo-sampled", "SFT + GRPO · reglas · best-of-4"))
+    stages.append(("diverse-sampled", "SFT + GRPO · variedad · best-of-4"))
     if split == "test_id":
         stages = [("test-id-sft-greedy", "SFT · determinista"),
-                  ("test-id-grpo-greedy", "SFT + GRPO · determinista"),
+                  ("test-id-grpo-greedy", "SFT + GRPO · reglas · determinista"),
+                  ("test-id-diverse-greedy", "SFT + GRPO · variedad · determinista"),
                   ("test-id-sft-sampled", "SFT · best-of-4"),
-                  ("test-id-grpo-sampled", "SFT + GRPO · best-of-4")]
+                  ("test-id-grpo-sampled", "SFT + GRPO · reglas · best-of-4"),
+                  ("test-id-diverse-sampled", "SFT + GRPO · variedad · best-of-4")]
     results = []
     for folder, label in stages:
         source = run / folder
@@ -58,7 +62,7 @@ def build(run, output, split="validation"):
     if any([r["id"] for r in records] != ids for _, _, _, records in results):
         raise ValueError("Comparison requires identical task IDs in identical order")
     trainings = []
-    for name in ("sft", "grpo"):
+    for name in ("sft", "grpo", "diverse"):
         directory = run / name
         if (directory / "summary.json").exists():
             summary = json.loads((directory / "summary.json").read_text())
@@ -84,12 +88,18 @@ def build(run, output, split="validation"):
     lines.append('</tbody></table></div><p class="muted">¹ Solo salidas válidas. El generador por reglas garantiza las restricciones por construcción: es un control, no una salida del modelo.</p>')
     sampled = [(folder, label, summary, records) for folder, label, summary, records in results if summary["best_of"] > 1]
     if sampled:
-        lines.append('<h2>Fiabilidad de una alternativa aleatoria</h2><p>Contamos todas las alternativas generadas, antes de elegir la mejor. Esta medida permite comprobar si RL mejora la distribución de respuestas.</p><div class="scroll"><table><thead><tr><th>Modelo</th><th>Alternativas que cumplen todo</th><th>Tareas distintas</th></tr></thead><tbody>')
+        lines.append('<h2>Fiabilidad de una alternativa aleatoria</h2><p>Contamos todas las alternativas generadas, antes de elegir la mejor. Esta medida permite comprobar si RL mejora la distribución de respuestas.</p><div class="scroll"><table><thead><tr><th>Modelo</th><th>Alternativas que cumplen todo</th><th>Repetición consecutiva</th><th>Tareas distintas</th></tr></thead><tbody>')
         for _, label, _, records in sampled:
             candidates = [c for record in records for c in record["candidates"]]
             successes = sum(c["metrics"]["all_satisfied"] for c in candidates)
-            lines.append(f'<tr><td>{esc(label.replace(" · best-of-4", ""))}</td><td>{successes}/{len(candidates)} ({successes / len(candidates):.1%})</td><td>{len(records)}</td></tr>')
-        lines.append('</tbody></table></div><p class="muted">Las alternativas de una misma tarea no cuentan como tareas independientes. Los intervalos de las diferencias se calculan remuestreando tareas completas.</p>')
+            per_task_repeats = []
+            for record in records:
+                valid = [c for c in record["candidates"] if c["metrics"]["valid"]]
+                if valid:
+                    per_task_repeats.append(sum(c["metrics"]["repeat_rate"] for c in valid) / len(valid))
+            repetition = f'{sum(per_task_repeats) / len(per_task_repeats):.1%}' if per_task_repeats else 'Sin salidas válidas'
+            lines.append(f'<tr><td>{esc(label.replace(" · best-of-4", ""))}</td><td>{successes}/{len(candidates)} ({successes / len(candidates):.1%})</td><td>{repetition}</td><td>{len(records)}</td></tr>')
+        lines.append('</tbody></table></div><p class="muted">Repetición: media por tarea sobre sus salidas válidas. Las alternativas de una misma tarea no cuentan como tareas independientes. Los intervalos de las diferencias se calculan remuestreando tareas completas.</p>')
     lines.append('<details><summary>Coste de generación de esta evaluación</summary><div class="scroll"><table><thead><tr><th>Método</th><th>Tokens generados</th><th>Tiempo de generación</th><th>Tiempo total</th></tr></thead><tbody>')
     for _, label, summary, _ in results:
         lines.append(f'<tr><td>{esc(label)}</td><td>{summary["generated_tokens"]:,}</td><td>{summary["generation_seconds"]:.1f} s</td><td>{summary["seconds"]:.1f} s</td></tr>')
@@ -122,7 +132,7 @@ def build(run, output, split="validation"):
         lines.append(f'<li>{esc(label)}: <a href="{assets.name}/{folder}/summary.json">métricas</a> · <a href="{assets.name}/{folder}/predictions.jsonl">predicciones</a></li>')
     for name, _ in trainings:
         lines.append(f'<li>{name.upper()}: <a href="{assets.name}/{name}/train.jsonl">registro de entrenamiento</a></li>')
-    for mode in ("greedy", "sampled"):
+    for mode in ("greedy", "sampled", "diverse-greedy", "diverse-sampled", "reward-ablation"):
         comparison = run / f'{"test-id" if split == "test_id" else "validation"}-{mode}-comparison.json'
         if comparison.exists():
             shutil.copy2(comparison, assets / comparison.name)

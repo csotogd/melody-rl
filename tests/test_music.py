@@ -31,6 +31,16 @@ def test_constant_pitch_is_reported_as_degenerate_not_musical_quality():
     assert reward(metrics, "diverse") < 1
 
 
+def test_diversity_reward_keeps_constraint_compliance_as_priority():
+    constant = evaluate_score("C4 C4 C4 | C4 C4 C4", task())
+    varied = evaluate_score("C4 D4 E4 | G4 E4 C4", task())
+    wrong_key = evaluate_score("C4 D4 F#4 | G4 E4 C4", task())
+    assert reward(varied, "diverse") == pytest.approx(1.)
+    assert reward(constant, "diverse") == pytest.approx(.9)
+    assert reward(wrong_key, "diverse") <= .5625
+    assert reward(varied, "diverse") > reward(constant, "diverse") > reward(wrong_key, "diverse")
+
+
 def test_split_disjointness_and_actual_distribution_shift():
     splits = make_splits()
     all_ids = [t.id for tasks in splits.values() for t in tasks]

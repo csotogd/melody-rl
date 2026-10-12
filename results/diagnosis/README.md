@@ -63,6 +63,43 @@ The runner saves source hashes, the original adapter checksum, all commands,
 all candidates, generated audio and both positive and negative results. It stops
 if a stage fails. There is no score-based search or selection inside the runner.
 
+## The longer run exposed a reward exploit
+
+On full validation, the longer graded-reward GRPO run raised greedy compliance
+from **40/48 to 44/48**, but adjacent repetition rose from **10.63% to 72.12%**.
+Its dominant greedy prefix became A4 A4 (44/48 tasks), replacing SFT's A4 C5.
+
+Across all four stochastic samples per task, compliance rose from **69/192 to
+158/192**. Mean per-task adjacent repetition among valid samples rose from
+**4.59% to 31.77%**. This is evidence that optimizing the specified reward can
+improve compliance while producing degenerate melodies; it is not evidence of
+better music.
+
+This validation finding motivated a [separate reward ablation](diversity-protocol.json),
+committed before any ID test was opened. The test coordinator was held while the
+new policy was trained. Both RL policies start from the **same SFT adapter**;
+the second policy is not a continuation of the repetitive RL policy. Configuration
+differs only in `reward`, and the first four sampled outputs before any update
+were verified identical. Both use 128 groups, four samples and learning rate 5e-5.
+
+The alternative reward preserves compliance priority and differentiates correct
+melodies by adjacent repetition and a three-distinct-pitch proxy. This may also
+reduce skipped groups and increase the actual update count. Best-of-four selection
+uses the same graded reward for every policy during evaluation, so the selector
+is not another changing variable. All-candidate metrics remain the primary focus.
+
+Reproduce the complete controlled comparison, training both policies before test:
+
+```bash
+HF_HUB_OFFLINE=1 python scripts/run_followup.py \
+  --sft-adapter runs/local-study/sft/adapter \
+  --diversity-config configs/diversity-study.json --run runs/new-reward-ablation
+```
+
+The diversity proxy can still favor an alternating template. It does not address
+all cross-prompt variety or tonal-conditioning shortcuts, and it must not be
+presented as a validated measure of musical quality.
+
 For context on the algorithm's zero-reward-variance and loss diagnostics, see the
 [TRL GRPO documentation](https://huggingface.co/docs/trl/grpo_trainer). This repo
 implements its own small GRPO loop and does not claim equivalence to every TRL option.
