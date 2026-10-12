@@ -1,0 +1,52 @@
+{
+  "experiment": "diversity-reward-ablation",
+  "decision_basis": "On all 48 validation tasks, graded GRPO improved greedy success from 40 to 44 but raised adjacent repetition from 0.10635 to 0.72123. No ID test evaluation had started.",
+  "test_gate": "The original coordinator was paused before the ID test. Freeze the diversity policy before resuming any test evaluation; evaluate all three policies once, including regressions.",
+  "config": {
+    "model": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "seed": 42,
+    "dataset_seed": 42,
+    "device": "auto",
+    "dtype": "float32",
+    "rank": 8,
+    "lora_alpha": 16,
+    "target_modules": [
+      "q_proj",
+      "v_proj"
+    ],
+    "max_new_tokens": 96,
+    "sft_steps": 348,
+    "sft_lr": 0.0001,
+    "rl_steps": 128,
+    "rl_lr": 5e-05,
+    "group_size": 4,
+    "clip": 0.2,
+    "beta": 0.02,
+    "reward": "diverse",
+    "eval_limit": 48,
+    "gradient_checkpointing": true,
+    "rollout_batch_size": 4
+  },
+  "control": "Same original SFT adapter, seed, 128 groups, group size 4, learning rate 5e-5, beta 0.02, LoRA and task split as extended-study. Change only reward variant.",
+  "reward": "0.9 * graded + 0.1 * all_satisfied * min(1, unique_pitches/3) * (1-adjacent_repeat_rate)",
+  "priority": "Every fully compliant score gets at least 0.9; every noncompliant valid score gets at most 0.5625. Within compliant outputs, prefer fewer repeats and at least three distinct pitches.",
+  "metrics": [
+    "sampled all-constraint success",
+    "greedy all-constraint success",
+    "adjacent repetition",
+    "two-note prefix concentration",
+    "format validity",
+    "compute"
+  ],
+  "selection": "Final checkpoint only. No subsequent learning-rate, seed or checkpoint sweep in this ablation.",
+  "limits": [
+    "This proxy can reward alternating templates and does not measure musical quality.",
+    "More groups may update because the new reward differentiates otherwise equal full-success samples.",
+    "One training seed; conclusions conditional on these runs."
+  ],
+  "validation": "48 same tasks; greedy and 4 stochastic samples per task. Compare SFT, graded GRPO and diversity-aware GRPO.",
+  "test": "Once all policies are fixed, evaluate the same 48 previously untouched ID tasks for all three policies, greedy and 4 stochastic samples. OOD tests stay reserved.",
+  "paid_compute_eur": 0,
+  "evaluation_reward": "Use graded reward for best-of-four selection for all policies, to keep the evaluation selector identical. Primary metrics use all candidates before selection."
+}
