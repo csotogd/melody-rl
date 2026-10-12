@@ -1,0 +1,143 @@
+{
+  "note": "Four stochastic training-prompt samples collected BEFORE this group's update. These are not held-out evaluations or saved model checkpoints.",
+  "selection": "Predetermined group number; all samples retained, including failures.",
+  "step": 128,
+  "samples": [
+    {
+      "step": 128,
+      "task_id": "baba4bc6de1d7ef4",
+      "task": {
+        "key": "C",
+        "beats": 3,
+        "bars": 1,
+        "low": 65,
+        "high": 77,
+        "final": 67,
+        "max_leap": 5
+      },
+      "text": "A4 C5 G4",
+      "truncated": false,
+      "reward": 1.0,
+      "metrics": {
+        "valid": true,
+        "all_satisfied": true,
+        "checks": {
+          "bars": true,
+          "meter": true,
+          "key": true,
+          "range": true,
+          "final": true,
+          "leap": true
+        },
+        "partial": 1.0,
+        "diversity": 1.0,
+        "repeat_rate": 0.0,
+        "notes": 3,
+        "unique_pitches": 3,
+        "error": null
+      }
+    },
+    {
+      "step": 128,
+      "task_id": "baba4bc6de1d7ef4",
+      "task": {
+        "key": "C",
+        "beats": 3,
+        "bars": 1,
+        "low": 65,
+        "high": 77,
+        "final": 67,
+        "max_leap": 5
+      },
+      "text": "A4 D5 G4",
+      "truncated": false,
+      "reward": 0.5625,
+      "metrics": {
+        "valid": true,
+        "all_satisfied": false,
+        "checks": {
+          "bars": true,
+          "meter": true,
+          "key": true,
+          "range": true,
+          "final": true,
+          "leap": false
+        },
+        "partial": 0.8333333333333334,
+        "diversity": 1.0,
+        "repeat_rate": 0.0,
+        "notes": 3,
+        "unique_pitches": 3,
+        "error": null
+      }
+    },
+    {
+      "step": 128,
+      "task_id": "baba4bc6de1d7ef4",
+      "task": {
+        "key": "C",
+        "beats": 3,
+        "bars": 1,
+        "low": 65,
+        "high": 77,
+        "final": 67,
+        "max_leap": 5
+      },
+      "text": "A4 C5 G4",
+      "truncated": false,
+      "reward": 1.0,
+      "metrics": {
+        "valid": true,
+        "all_satisfied": true,
+        "checks": {
+          "bars": true,
+          "meter": true,
+          "key": true,
+          "range": true,
+          "final": true,
+          "leap": true
+        },
+        "partial": 1.0,
+        "diversity": 1.0,
+        "repeat_rate": 0.0,
+        "notes": 3,
+        "unique_pitches": 3,
+        "error": null
+      }
+    },
+    {
+      "step": 128,
+      "task_id": "baba4bc6de1d7ef4",
+      "task": {
+        "key": "C",
+        "beats": 3,
+        "bars": 1,
+        "low": 65,
+        "high": 77,
+        "final": 67,
+        "max_leap": 5
+      },
+      "text": "A4 G4 G4",
+      "truncated": false,
+      "reward": 0.9333333333333333,
+      "metrics": {
+        "valid": true,
+        "all_satisfied": true,
+        "checks": {
+          "bars": true,
+          "meter": true,
+          "key": true,
+          "range": true,
+          "final": true,
+          "leap": true
+        },
+        "partial": 1.0,
+        "diversity": 0.3333333333333333,
+        "repeat_rate": 0.5,
+        "notes": 3,
+        "unique_pitches": 2,
+        "error": null
+      }
+    }
+  ]
+}

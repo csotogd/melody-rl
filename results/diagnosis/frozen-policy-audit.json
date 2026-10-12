@@ -1,0 +1,26 @@
+{
+  "sft_training_tasks": 174,
+  "rl_training_tasks_per_policy": 128,
+  "rollouts_per_policy": 512,
+  "same_order_of_rl_prompts": true,
+  "config_differences": {
+    "reward": [
+      "graded",
+      "diverse"
+    ]
+  },
+  "all_observed_training_task_ids_within_train_split": true,
+  "no_observed_training_ids_in_validation_or_tests": true,
+  "test_id_not_yet_opened_at_policy_freeze": true,
+  "frozen_adapter_sha256": {
+    "sft": {
+      "runs/local-study/sft/adapter/adapter_model.safetensors": "74cd8fa48e1c8202ccb230732486a299ad2cbc03f436dbb66be97c9f36a7f47f"
+    },
+    "graded": {
+      "runs/extended-study/grpo/adapter/adapter_model.safetensors": "9102c8d5e51d6f8cf6f8f4fcb9304513ce536b9feb3dd56b7e28544367bd4750"
+    },
+    "diverse": {
+      "runs/diversity-study/grpo/adapter/adapter_model.safetensors": "e545bfd836370db9c415968eb680a023911434b06050bd804be3da5c39cb3b39"
+    }
+  }
+}
