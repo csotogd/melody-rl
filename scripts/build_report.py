@@ -67,12 +67,17 @@ def build(run, output):
              '<div class="tag">Experimento 001 · entrenamiento local</div><h1>melody-rl</h1>',
              '<p class="intro">¿Puede el post-training mejorar el cumplimiento de instrucciones musicales? Qwen3-0.6B + LoRA + GRPO, con recompensas verificables y melodías cortas.</p>',
              '<p class="notice"><strong>Piloto de viabilidad.</strong> Esta muestra de validación es demasiado pequeña para concluir que RL mejora el modelo. El cumplimiento de restricciones no mide calidad musical. El audio es una síntesis sencilla de las notas, no audio generado por el modelo.</p>',
+             '<p class="intro"><strong>SFT (ajuste fino supervisado)</strong>: aprende de ejemplos de melodías correctas. <strong>GRPO</strong>: es el método de aprendizaje por refuerzo (RL) que usamos después; compara melodías propuestas por el modelo y actualiza sus pesos según las reglas que cumplen. <strong>Best-of-N</strong>: genera N alternativas y elige la mejor puntuación, sin entrenamiento adicional.</p>',
              '<h2>Resultados medidos</h2><div class="scroll"><table><thead><tr><th>Método</th><th>Todas las restricciones</th><th>Formato válido</th><th>Restricciones cumplidas, media</th><th>Repetición consecutiva¹</th></tr></thead><tbody>']
     for folder, label, s, _ in results:
         repeat = s["repeat_rate_valid_outputs"]
         low, high = s["wilson_95_interval"]
         lines.append(f'<tr><td>{esc(label)}</td><td>{s["successes"]}/{s["n"]} <span class="muted">(IC 95%: {low:.0%}–{high:.0%})</span></td><td>{s["valid_rate"]:.0%}</td><td>{s["mean_partial_all_outputs"]:.0%}</td><td>{repeat:.0%}</td></tr>' if repeat is not None else f'<tr><td>{esc(label)}</td><td>{s["successes"]}/{s["n"]}</td><td>{s["valid_rate"]:.0%}</td><td>{s["mean_partial_all_outputs"]:.0%}</td><td>Sin salidas válidas</td></tr>')
     lines.append('</tbody></table></div><p class="muted">¹ Solo salidas válidas. El generador por reglas garantiza las restricciones por construcción: es un control, no una salida del modelo.</p>')
+    lines.append('<details><summary>Coste de generación de esta evaluación</summary><div class="scroll"><table><thead><tr><th>Método</th><th>Tokens generados</th><th>Tiempo de generación</th><th>Tiempo total</th></tr></thead><tbody>')
+    for _, label, summary, _ in results:
+        lines.append(f'<tr><td>{esc(label)}</td><td>{summary["generated_tokens"]:,}</td><td>{summary["generation_seconds"]:.1f} s</td><td>{summary["seconds"]:.1f} s</td></tr>')
+    lines.append('</tbody></table></div><p class="muted">Best-of-N cuenta las N alternativas, incluidas las descartadas. El tiempo total incluye carga del modelo y exportación de audio. El generador por reglas no usa tokens del modelo; su tiempo de generación no se instrumenta por separado.</p></details>')
     if trainings:
         lines.append('<h2>Entrenamiento ejecutado</h2><div class="grid">')
         for name, summary in trainings:
@@ -86,7 +91,8 @@ def build(run, output):
             metrics = record["metrics"]
             cls = "pass" if metrics["all_satisfied"] else "fail"
             verdict = "Cumple todo" if metrics["all_satisfied"] else "Incumple restricciones"
-            lines.append(f'<article class="card"><strong>{esc(label)}</strong><p class="{cls}">{verdict}</p><pre>{esc(record["text"])}</pre>')
+            score_text = esc(record["text"]).replace(" \n", "&#32;\n")
+            lines.append(f'<article class="card"><strong>{esc(label)}</strong><p class="{cls}">{verdict}</p><pre>{score_text}</pre>')
             failed = [key for key, value in metrics["checks"].items() if not value]
             if failed:
                 lines.append(f'<p class="muted">Fallos: {esc(", ".join(failed))}</p>')

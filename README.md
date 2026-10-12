@@ -12,6 +12,36 @@ leaderboard or a full audio-generation system. The current score language contai
 quarter-note melodies only. Compliance, diversity proxies, and musical quality
 are different things.
 
+## Measured local result
+
+On an Apple M4 / 16 GB MacBook Air, using the same 24 validation tasks:
+
+| Method | All six constraints satisfied |
+| --- | ---: |
+| Pretrained model, greedy | 0/24 |
+| SFT, greedy | 21/24 |
+| SFT + GRPO, greedy | 21/24 |
+| SFT, best of 4 stochastic samples | 18/24 |
+| Procedural rule baseline | 24/24 |
+
+SFT ran 348 updates in 208.7 seconds. GRPO sampled 32 groups of four completions
+and made 28 updates in 288.3 seconds; four equal-reward groups were skipped.
+**This RL run did not improve compliance over SFT.** Mean adjacent repetition
+increased from 9.48% to 10.67%. This is one seed on a small development sample;
+the reserved tests remain untouched. Cloud/API spend: **€0**.
+
+Best-of-4 used 1,216 generated tokens and 103.1 seconds of generation, compared
+with 298 tokens and 20.9 seconds for greedy SFT. Its four temperature-1 samples
+do not include a greedy candidate, so this strategy is not guaranteed to match
+greedy decoding. It performed worse on this small validation sample.
+
+See [experiment notes and audible progress](results/README.md),
+[raw evidence](results/local-study_assets/), and the
+[HTML comparison with MIDI/WAV previews](results/local-study.html).
+To hear the comparison, clone the repo and open the HTML file in your browser;
+GitHub itself shows its source. Audio uses a simple note synthesizer, so this
+experiment evaluates symbolic instruction following, not waveform quality.
+
 ## What is implemented
 
 - A strict score parser and six independently reported constraint checks.
@@ -178,12 +208,11 @@ Compare its extra generated tokens and latency, not just its success rate.
 
 ## Next experiments
 
-1. Measure the local feasibility pilot and audit raw trajectories.
-2. Establish a stable SFT baseline on validation before increasing RL steps.
-3. Compare binary, graded, and diversity-aware rewards at equal sampling budgets.
-4. Compare RL against extra SFT and best-of-N at documented compute budgets.
-5. Run multiple seeds, freeze decisions, then evaluate held-out splits once.
-6. Add richer rhythm, phrasing, and a separately evaluated musicality criterion.
+1. Diagnose the three residual validation failures and reward-insensitive repetition.
+2. Compare binary, graded, and diversity-aware rewards at equal sampling budgets.
+3. Compare RL against extra SFT at documented compute budgets.
+4. Run multiple seeds, freeze decisions, then evaluate held-out splits once.
+5. Add richer rhythm, phrasing, and a separately evaluated musicality criterion.
 
 No claim of novel methodology is made at this stage. Novelty requires checking the
 literature and a result beyond the reference methods.
