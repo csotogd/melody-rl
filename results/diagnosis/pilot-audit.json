@@ -25,12 +25,20 @@
       "meter": 5
     }
   },
+  "greedy_prefix_concentration": {
+    "most_common_two_note_prefix": [
+      "A4",
+      "C5"
+    ],
+    "count": 47,
+    "tasks": 48
+  },
   "full_validation_greedy": {
     "tasks": 48,
     "candidates_per_policy": 48,
     "bootstrap_seed": 42,
     "bootstrap_resamples": 10000,
-    "interval_note": "Paired percentile bootstrap over tasks; conditional on one training seed. Repeated samples are not independent tasks.",
+    "interval_note": "Paired percentile bootstrap over tasks; conditional on one training seed. Repeated samples are not independent tasks. A collapsed interval with no discordant tasks does not establish equivalence.",
     "metrics": {
       "candidate_success": {
         "paired_tasks": 48,

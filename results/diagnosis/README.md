@@ -23,6 +23,17 @@ by `scripts/diagnose_pilot.py`. The first pilot and all its failures remain publ
   reduce obvious implementation risks, but are not proof that no bug exists.
 - The graded reward has **no repetition penalty**. More constraint compliance
   alone cannot establish better music.
+- **47 of 48 greedy SFT outputs begin with A4 C5.** This is strong prefix
+  concentration in deterministic decoding, not proof that the entire stochastic
+  distribution has collapsed. The task allows a common template to satisfy many
+  prompts. Neither the current reward nor adjacent repetition alone captures
+  this lack of variety across instructions.
+- C, D, E, G and A belong to **all three supported keys**. The current task only
+  forbids out-of-key notes; it does not require key-characteristic notes. A model
+  can therefore pass key checks using a shared pitch vocabulary, which limits
+  claims about learning tonal conditioning. A future task revision should require
+  characteristic notes and evaluate transposition or melodic contour separately.
+  That revision is deliberately not mixed into the fixed follow-up comparison.
 
 ## Fixed follow-up
 
