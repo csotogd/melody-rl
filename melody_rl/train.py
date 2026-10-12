@@ -80,6 +80,10 @@ def train_rl(config, data_dir, sft_adapter, output):
         trajectories = [policy.generate(row["prompt"], sample=True) for _ in range(config["group_size"])]
         metrics = [evaluate_score(t["text"], task, truncated=t["truncated"]) for t in trajectories]
         scores = [reward(m, config["reward"]) for m in metrics]
+        diagnostics = {"reward_mean": sum(scores) / len(scores),
+                       "success_rate": sum(m["all_satisfied"] for m in metrics) / len(metrics),
+                       "valid_rate": sum(m["valid"] for m in metrics) / len(metrics),
+                       "mean_completion_tokens": sum(t["tokens"] for t in trajectories) / len(trajectories)}
         advantages = group_advantages(torch.tensor(scores, device=policy.device))
         # Equal-reward groups have no relative learning signal. Report, don't hide.
         zero_variance = max(scores) - min(scores) < 1e-8
@@ -90,7 +94,8 @@ def train_rl(config, data_dir, sft_adapter, output):
         if zero_variance:
             skipped += 1
             append_json(output / "train.jsonl", {"step": step + 1, "skipped_zero_variance": True,
-                        "rewards": scores, "updates": updates, "seconds": time.perf_counter() - started})
+                        "rewards": scores, "updates": updates, **diagnostics,
+                        "seconds": time.perf_counter() - started})
             continue
         policy.model.eval()
         with torch.no_grad():
@@ -99,7 +104,7 @@ def train_rl(config, data_dir, sft_adapter, output):
                 reference_logps = [policy.logps(t["ids"], t["prompt_length"]).detach() for t in trajectories]
         policy.model.train()
         optimizer.zero_grad(set_to_none=True)
-        loss_sum, kl_sum, clip_sum = 0., 0., 0.
+        loss_sum, kl_sum, clip_sum, ratio_sum = 0., 0., 0., 0.
         # Sequential microbatches share one optimizer update per on-policy group.
         for t, old, ref, advantage in zip(trajectories, old_logps, reference_logps, advantages):
             logps = policy.logps(t["ids"], t["prompt_length"])
@@ -110,11 +115,13 @@ def train_rl(config, data_dir, sft_adapter, output):
             loss_sum += loss.item() / len(trajectories)
             kl_sum += stats["kl"] / len(trajectories)
             clip_sum += stats["clip_fraction"] / len(trajectories)
+            ratio_sum += stats["ratio_mean"] / len(trajectories)
         norm = torch.nn.utils.clip_grad_norm_(policy.trainable_parameters(), 1., error_if_nonfinite=True)
         optimizer.step()
         updates += 1
         append_json(output / "train.jsonl", {"step": step + 1, "loss": loss_sum, "grad_norm": norm.item(),
                     "kl": kl_sum, "clip_fraction": clip_sum, "rewards": scores, "updates": updates,
+                    "ratio_mean": ratio_sum, **diagnostics,
                     "skipped_zero_variance": False, "seconds": time.perf_counter() - started})
         policy.clear_cache()
     info = metadata(policy, "grpo", started, updates=updates, skipped_groups=skipped,
