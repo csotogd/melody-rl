@@ -32,7 +32,7 @@ def main():
     config = json.loads(args.config.read_text())
     if args.command == "data":
         from .data import write_data
-        result = write_data(args.data, config["seed"])
+        result = write_data(args.data, config.get("dataset_seed", 42))
     elif args.command == "doctor":
         import torch
         from .model import choose_device

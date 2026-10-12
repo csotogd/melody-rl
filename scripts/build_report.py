@@ -6,13 +6,29 @@ from pathlib import Path
 import shutil
 
 
+def copy_evidence(source, destination):
+    if source.name == "summary.json":
+        data = json.loads(source.read_text())
+        project = Path(__file__).resolve().parent.parent
+        for key in ("sft_adapter", "rl_adapter"):
+            if data.get(key) and Path(data[key]).is_absolute():
+                try:
+                    data[key] = str(Path(data[key]).relative_to(project))
+                except ValueError:
+                    data[key] = Path(data[key]).name
+        destination.write_text(json.dumps(data, indent=2) + "\n")
+    else:
+        shutil.copy2(source, destination)
+
+
 def build(run, output):
     output.parent.mkdir(parents=True, exist_ok=True)
     assets = output.parent / f"{output.stem}_assets"
     assets.mkdir(exist_ok=True)
-    stages = (("base", "Modelo inicial"), ("sft-eval", "Después de SFT"),
+    stages = [("base", "Modelo inicial"), ("sft-eval", "Después de SFT"),
               ("grpo-eval", "Después de SFT + GRPO"), ("rules", "Generador por reglas"),
-              ("bestof4", "SFT · best-of-4"))
+              ]
+    stages.extend((path.name, f"SFT · best-of-{path.name[6:]}") for path in sorted(run.glob("bestof*")) if path.is_dir())
     results = []
     for folder, label in stages:
         source = run / folder
@@ -23,7 +39,7 @@ def build(run, output):
         dest = assets / folder
         dest.mkdir(exist_ok=True)
         for name in ("summary.json", "predictions.jsonl"):
-            shutil.copy2(source / name, dest / name)
+            copy_evidence(source / name, dest / name)
         if (source / "audio").exists():
             shutil.copytree(source / "audio", dest / "audio", dirs_exist_ok=True)
         results.append((folder, label, summary, records))
@@ -42,7 +58,7 @@ def build(run, output):
             dest.mkdir(exist_ok=True)
             for filename in ("summary.json", "train.jsonl", "rollouts.jsonl"):
                 if (directory / filename).exists():
-                    shutil.copy2(directory / filename, dest / filename)
+                    copy_evidence(directory / filename, dest / filename)
             trainings.append((name, summary))
     esc = html.escape
     lines = ['<!doctype html><html lang="es"><meta charset="utf-8">',

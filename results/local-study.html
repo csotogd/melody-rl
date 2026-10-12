@@ -1,0 +1,214 @@
+<!doctype html><html lang="es"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>melody-rl · piloto local</title>
+<style>body{font:16px/1.6 system-ui,sans-serif;background:#f5f4ef;color:#182823;margin:0}main{max-width:1100px;margin:auto;padding:48px 24px}h1{font-size:48px;letter-spacing:-2px;margin:8px 0}h2{margin-top:40px}.tag{color:#496a5d;text-transform:uppercase;letter-spacing:2px;font-size:12px}.intro{max-width:750px}.notice{border-left:4px solid #b08330;padding:12px 18px;background:#fff9e9}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;background:white}th,td{text-align:left;padding:14px;border-bottom:1px solid #ddd}th{font-size:13px}code,pre{font:14px/1.5 ui-monospace,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef1ed;padding:12px;border-radius:8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.card{background:white;padding:20px;border:1px solid #ddd;border-radius:12px}.pass{color:#276848}.fail{color:#9c492e}audio{width:100%;height:36px}a{color:#265a4a}.muted{color:#59685f;font-size:14px}details{margin:12px 0}footer{margin-top:48px;border-top:1px solid #ccc;padding-top:16px}</style><main>
+<div class="tag">Experimento 001 · entrenamiento local</div><h1>melody-rl</h1>
+<p class="intro">¿Puede el post-training mejorar el cumplimiento de instrucciones musicales? Qwen3-0.6B + LoRA + GRPO, con recompensas verificables y melodías cortas.</p>
+<p class="notice"><strong>Piloto de viabilidad.</strong> Esta muestra de validación es demasiado pequeña para concluir que RL mejora el modelo. El cumplimiento de restricciones no mide calidad musical. El audio es una síntesis sencilla de las notas, no audio generado por el modelo.</p>
+<h2>Resultados medidos</h2><div class="scroll"><table><thead><tr><th>Método</th><th>Todas las restricciones</th><th>Formato válido</th><th>Restricciones cumplidas, media</th><th>Repetición consecutiva¹</th></tr></thead><tbody>
+<tr><td>Después de SFT</td><td>21/24 <span class="muted">(IC 95%: 69%–96%)</span></td><td>100%</td><td>98%</td><td>9%</td></tr>
+<tr><td>Generador por reglas</td><td>24/24 <span class="muted">(IC 95%: 86%–100%)</span></td><td>100%</td><td>100%</td><td>0%</td></tr>
+</tbody></table></div><p class="muted">¹ Solo salidas válidas. El generador por reglas garantiza las restricciones por construcción: es un control, no una salida del modelo.</p>
+<h2>Entrenamiento ejecutado</h2><div class="grid">
+<div class="card"><strong>SFT</strong><p>348 actualizaciones · 208.7 s</p><p class="muted">1,146,880 parámetros entrenables<br>RSS pico del proceso: 3.55 GiB<br>Dispositivo: mps · nube: 0 €</p></div>
+</div><p class="muted">Los tiempos incluyen carga del modelo y excluyen la descarga inicial. RSS no representa toda la memoria unificada de la GPU.</p>
+<h2>Escucha e inspecciona</h2>
+<details open><summary>Ejemplo 1 · 59e6c4c49feaae70</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 3/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note F4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 | A4 D4 F4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/000.wav"></audio><a href="local-study_assets/sft-eval/audio/000.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D4 F4 C4 | E4 A#4 F4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/000.wav"></audio><a href="local-study_assets/rules/audio/000.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 2 · a916217eea45e82a</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: C major; 3/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note C5; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 | A4 C5 C5</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/001.wav"></audio><a href="local-study_assets/sft-eval/audio/001.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 B4 E5 | B4 F4 C5</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/001.wav"></audio><a href="local-study_assets/rules/audio/001.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 3 · d58aca510c4ab548</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: C major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note C5; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 C5</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/002.wav"></audio><a href="local-study_assets/sft-eval/audio/002.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D5 C5 B4 C5</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/002.wav"></audio><a href="local-study_assets/rules/audio/002.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 4 · dbffedacbdb54615</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 3/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note G4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/003.wav"></audio><a href="local-study_assets/sft-eval/audio/003.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 F#4 G4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/003.wav"></audio><a href="local-study_assets/rules/audio/003.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 5 · 136e53d9b4b96fac</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note A4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 A4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/004.wav"></audio><a href="local-study_assets/sft-eval/audio/004.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F4 A4 F4 A4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/004.wav"></audio><a href="local-study_assets/rules/audio/004.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 6 · 334cda86b82fb6c8</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: C major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note E4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 E4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/005.wav"></audio><a href="local-study_assets/sft-eval/audio/005.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 C4 F4 E4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/005.wav"></audio><a href="local-study_assets/rules/audio/005.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 7 · a279d0b52ec2f274</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 3/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note A4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/006.wav"></audio><a href="local-study_assets/sft-eval/audio/006.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 A#4 A4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/006.wav"></audio><a href="local-study_assets/rules/audio/006.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 8 · 445997cd360248b9</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note C5; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 C5</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/007.wav"></audio><a href="local-study_assets/sft-eval/audio/007.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D5 A#4 G4 E4 | A4 F4 G4 C5</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/007.wav"></audio><a href="local-study_assets/rules/audio/007.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 9 · 3e7d576308f2ba7f</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: C major; 3/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note C5; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="fail">Incumple restricciones</p><pre>A4 C5</pre>
+<p class="muted">Fallos: meter</p>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/008.wav"></audio><a href="local-study_assets/sft-eval/audio/008.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 D5 C5</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/008.wav"></audio><a href="local-study_assets/rules/audio/008.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 10 · aadc59356286a3ba</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: C major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note G4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/009.wav"></audio><a href="local-study_assets/sft-eval/audio/009.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D5 A4 G4 B4 | E5 D5 A4 G4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/009.wav"></audio><a href="local-study_assets/rules/audio/009.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 11 · a0cba818b5713e07</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note A4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 C5 A4 A4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/010.wav"></audio><a href="local-study_assets/sft-eval/audio/010.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F4 C5 D5 F5 | C5 F4 A#4 A4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/010.wav"></audio><a href="local-study_assets/rules/audio/010.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 12 · 2c2783a4d8145615</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 3/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note F4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 | A4 C5 F4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/011.wav"></audio><a href="local-study_assets/sft-eval/audio/011.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>E5 F5 D5 | C5 A4 F4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/011.wav"></audio><a href="local-study_assets/rules/audio/011.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 13 · 3a77e93dc411ada3</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: C major; 3/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note G4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/012.wav"></audio><a href="local-study_assets/sft-eval/audio/012.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 D4 G4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/012.wav"></audio><a href="local-study_assets/rules/audio/012.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 14 · f134e8f6e2aaf393</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 3/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note G4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 | A4 D4 G4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/013.wav"></audio><a href="local-study_assets/sft-eval/audio/013.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>E4 B4 D4 | E4 C4 G4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/013.wav"></audio><a href="local-study_assets/rules/audio/013.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 15 · 5a5395cb40d12e4e</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 3/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note B4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 B4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/014.wav"></audio><a href="local-study_assets/sft-eval/audio/014.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F#4 C5 B4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/014.wav"></audio><a href="local-study_assets/rules/audio/014.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 16 · bdefbc6cfdb9f1f7</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 3/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note F4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 | A4 C5 F4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/015.wav"></audio><a href="local-study_assets/sft-eval/audio/015.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 F5 D5 | A#4 G4 F4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/015.wav"></audio><a href="local-study_assets/rules/audio/015.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 17 · d83f6c3c5fc3a9c5</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 3/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note B4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 B4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/016.wav"></audio><a href="local-study_assets/sft-eval/audio/016.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 D5 B4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/016.wav"></audio><a href="local-study_assets/rules/audio/016.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 18 · c360d69089e45e53</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: C major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note G4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 G4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/017.wav"></audio><a href="local-study_assets/sft-eval/audio/017.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 G4 F4 D4 | A4 D4 E4 G4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/017.wav"></audio><a href="local-study_assets/rules/audio/017.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 19 · 5256b556d309a462</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note C5; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 C5 A4 C5</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/018.wav"></audio><a href="local-study_assets/sft-eval/audio/018.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 G4 A#4 A4 | D5 A#4 A4 C5</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/018.wav"></audio><a href="local-study_assets/rules/audio/018.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 20 · 8a4a2ab2694e82d0</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 3/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note F4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 F4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/019.wav"></audio><a href="local-study_assets/sft-eval/audio/019.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>E4 A4 F4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/019.wav"></audio><a href="local-study_assets/rules/audio/019.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 21 · 2a77d008fc8c6942</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 3/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note D4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 | A4 D4 D4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/020.wav"></audio><a href="local-study_assets/sft-eval/audio/020.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 E4 C4 | E4 A4 D4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/020.wav"></audio><a href="local-study_assets/rules/audio/020.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 22 · 1c5479e0d3436820</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: F major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note C5; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 C5</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/021.wav"></audio><a href="local-study_assets/sft-eval/audio/021.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F4 C5 A4 G4 | F4 A4 A#4 C5</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/021.wav"></audio><a href="local-study_assets/rules/audio/021.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 23 · c8ba722a58fdb561</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: C major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note E5; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D5 | A4 C5 A4 E5</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/022.wav"></audio><a href="local-study_assets/sft-eval/audio/022.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 E5 F5 E5 | F5 C5 F5 E5</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/022.wav"></audio><a href="local-study_assets/rules/audio/022.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 24 · 84574f11a1216046</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 3/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note G4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>Después de SFT</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 | A4 C5 G4</pre>
+<audio controls preload="none" src="local-study_assets/sft-eval/audio/023.wav"></audio><a href="local-study_assets/sft-eval/audio/023.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 D5 B4 | A4 C5 G4</pre>
+<audio controls preload="none" src="local-study_assets/rules/audio/023.wav"></audio><a href="local-study_assets/rules/audio/023.mid" download>MIDI</a>
+</article>
+</div></details>
+<footer><strong>Evidencia reproducible</strong><p>Los registros contienen todas las salidas, configuraciones y métricas, incluidos los fallos.</p><ul>
+<li>Después de SFT: <a href="local-study_assets/sft-eval/summary.json">métricas</a> · <a href="local-study_assets/sft-eval/predictions.jsonl">predicciones</a></li>
+<li>Generador por reglas: <a href="local-study_assets/rules/summary.json">métricas</a> · <a href="local-study_assets/rules/predictions.jsonl">predicciones</a></li>
+<li>SFT: <a href="local-study_assets/sft/train.jsonl">registro de entrenamiento</a></li>
+</ul><p class="muted">Datos sintéticos propios · modelo Qwen3-0.6B · código MIT · no se han evaluado los conjuntos de test reservados.</p></footer></main></html>

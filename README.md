@@ -72,6 +72,17 @@ a feasibility pilot, **not enough to establish an improvement**. Equal-reward
 groups are logged and skipped; the reported update count may be lower than the
 requested number of groups.
 
+For automatic sequential execution with separate logs and a source-hash manifest:
+
+```bash
+python scripts/run_experiment.py --config configs/pilot.json --run runs/new-pilot
+```
+
+`configs/local-study.json` expands this to two passes over the 174 SFT examples
+(348 updates), 32 RL groups, and 24 validation tasks. `--best-of 4` adds the
+sampling-and-selection baseline. It is still a single-seed development study;
+the test splits are not used by this runner.
+
 ## Task and reward
 
 Example output (custom format, **not ABC**):
@@ -143,6 +154,8 @@ The split is by the **full tuple of constraints**, not just different random see
 
 Test JSONL files contain no teacher targets. Do not tune on test results. The
 pilot evaluates only four validation tasks; the test sets remain reserved.
+`dataset_seed` fixes all task splits independently of the training `seed`. Keep
+it fixed when comparing training seeds or algorithms.
 
 Report all-satisfied rate, individual constraints, validity, truncation, repetition
 among valid outputs, unique-output fraction, generated tokens, and latency.
