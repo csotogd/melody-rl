@@ -86,6 +86,8 @@ def build(run, output, split="validation"):
         low, high = s["wilson_95_interval"]
         lines.append(f'<tr><td>{esc(label)}</td><td>{s["successes"]}/{s["n"]} <span class="muted">(IC 95%: {low:.0%}–{high:.0%})</span></td><td>{s["valid_rate"]:.0%}</td><td>{s["mean_partial_all_outputs"]:.0%}</td><td>{repeat:.0%}</td></tr>' if repeat is not None else f'<tr><td>{esc(label)}</td><td>{s["successes"]}/{s["n"]}</td><td>{s["valid_rate"]:.0%}</td><td>{s["mean_partial_all_outputs"]:.0%}</td><td>Sin salidas válidas</td></tr>')
     lines.append('</tbody></table></div><p class="muted">¹ Solo salidas válidas. El generador por reglas garantiza las restricciones por construcción: es un control, no una salida del modelo.</p>')
+    if any("diverse" in folder for folder, _, _, _ in results):
+        lines.append('<p class="notice">La recompensa de <strong>variedad</strong> favorece evitar notas seguidas iguales y usar al menos tres alturas distintas. Es una señal sencilla: una plantilla alternante también puede puntuar bien. Best-of-4 usa el mismo criterio de selección por reglas para todas las políticas.</p>')
     sampled = [(folder, label, summary, records) for folder, label, summary, records in results if summary["best_of"] > 1]
     if sampled:
         lines.append('<h2>Fiabilidad de una alternativa aleatoria</h2><p>Contamos todas las alternativas generadas, antes de elegir la mejor. Esta medida permite comprobar si RL mejora la distribución de respuestas.</p><div class="scroll"><table><thead><tr><th>Modelo</th><th>Alternativas que cumplen todo</th><th>Repetición consecutiva</th><th>Tareas distintas</th></tr></thead><tbody>')
@@ -107,7 +109,8 @@ def build(run, output, split="validation"):
     if trainings:
         lines.append('<h2>Entrenamiento ejecutado</h2><div class="grid">')
         for name, summary in trainings:
-            lines.append(f'<div class="card"><strong>{name.upper()}</strong><p>{summary["updates"]} actualizaciones · {summary["seconds"]:.1f} s</p><p class="muted">{summary["trainable_parameters"]:,} parámetros entrenables<br>RSS pico del proceso: {summary["process_peak_rss_gb"]:.2f} GiB<br>Dispositivo: {esc(summary["device"])} · nube: 0 €</p></div>')
+            training_label = {"sft": "SFT", "grpo": "GRPO · reglas", "diverse": "GRPO · variedad"}[name]
+            lines.append(f'<div class="card"><strong>{training_label}</strong><p>{summary["updates"]} actualizaciones · {summary["seconds"]:.1f} s</p><p class="muted">{summary["trainable_parameters"]:,} parámetros entrenables<br>RSS pico del proceso: {summary["process_peak_rss_gb"]:.2f} GiB<br>Dispositivo: {esc(summary["device"])} · nube: 0 €</p></div>')
         lines.append('</div><p class="muted">Los tiempos incluyen carga del modelo y excluyen la descarga inicial. RSS no representa toda la memoria unificada de la GPU.</p>')
     lines.append('<h2>Escucha e inspecciona</h2>')
     for index, first in enumerate(results[0][3]):

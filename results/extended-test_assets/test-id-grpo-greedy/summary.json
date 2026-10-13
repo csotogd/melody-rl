@@ -1,0 +1,59 @@
+{
+  "n": 48,
+  "successes": 43,
+  "all_satisfied_rate": 0.8958333333333334,
+  "wilson_95_interval": [
+    0.7783231187385907,
+    0.9546789490988218
+  ],
+  "valid_rate": 1.0,
+  "mean_partial_all_outputs": 0.9826388888888888,
+  "repeat_rate_valid_outputs": 0.7108134920634921,
+  "unique_output_fraction_valid": 0.6041666666666666,
+  "truncated_rate": 0.0,
+  "constraint_rates_all_outputs": {
+    "bars": 1.0,
+    "meter": 1.0,
+    "key": 1.0,
+    "range": 1.0,
+    "final": 1.0,
+    "leap": 0.8958333333333334
+  },
+  "split": "test_id",
+  "method": "grpo",
+  "config": {
+    "model": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "seed": 42,
+    "dataset_seed": 42,
+    "device": "auto",
+    "dtype": "float32",
+    "rank": 8,
+    "lora_alpha": 16,
+    "target_modules": [
+      "q_proj",
+      "v_proj"
+    ],
+    "max_new_tokens": 96,
+    "sft_steps": 348,
+    "sft_lr": 0.0001,
+    "rl_steps": 128,
+    "rl_lr": 5e-05,
+    "group_size": 4,
+    "clip": 0.2,
+    "beta": 0.02,
+    "reward": "graded",
+    "eval_limit": 48,
+    "gradient_checkpointing": true,
+    "rollout_batch_size": 4
+  },
+  "sft_adapter": "runs/local-study/sft/adapter",
+  "rl_adapter": "runs/extended-study/grpo/adapter",
+  "resolved_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+  "best_of": 1,
+  "generated_tokens": 517,
+  "generation_seconds": 53.87567462481093,
+  "tokens_per_second": 9.596167539439222,
+  "seconds": 66.07807750010397,
+  "note": "Reserved test split; record any use for model selection."
+}

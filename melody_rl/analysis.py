@@ -1,5 +1,6 @@
 """Paired comparisons, with the task (not each correlated completion) as the unit."""
 import random
+import math
 
 
 def task_metrics(record):
@@ -33,6 +34,16 @@ def paired_comparison(before, after, *, seed=42, resamples=10000):
               "bootstrap_seed": seed, "bootstrap_resamples": resamples,
               "interval_note": "Paired percentile bootstrap over tasks; conditional on one training seed. Repeated samples are not independent tasks. A collapsed interval with no discordant tasks does not establish equivalence.",
               "metrics": {}}
+    improved = sum(not x["metrics"]["all_satisfied"] and y["metrics"]["all_satisfied"] for x, y in zip(before, after))
+    regressed = sum(x["metrics"]["all_satisfied"] and not y["metrics"]["all_satisfied"] for x, y in zip(before, after))
+    discordant = improved + regressed
+    exact_p = (min(1., 2 * sum(math.comb(discordant, k) for k in range(min(improved, regressed) + 1)) / 2 ** discordant)
+               if discordant else 1.)
+    result["paired_binary_selected_success"] = {
+        "improved": improved, "regressed": regressed, "unchanged": len(ids) - discordant,
+        "exact_mcnemar_p_two_sided": exact_p,
+        "note": "Secondary binary endpoint; unadjusted exact paired test. Few discordant tasks can make percentile bootstrap intervals overconfident; do not infer significance from those intervals alone.",
+    }
     for key in a[0]:
         pairs = [(x[key], y[key]) for x, y in zip(a, b) if x[key] is not None and y[key] is not None]
         if not pairs:

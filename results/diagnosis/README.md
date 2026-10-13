@@ -103,3 +103,12 @@ presented as a validated measure of musical quality.
 For context on the algorithm's zero-reward-variance and loss diagnostics, see the
 [TRL GRPO documentation](https://huggingface.co/docs/trl/grpo_trainer). This repo
 implements its own small GRPO loop and does not claim equivalence to every TRL option.
+
+## Completed outcome
+
+The [final three-policy comparison](../README.md) now includes the previously
+reserved ID test. All policies were fixed first, as recorded in the
+[frozen-policy audit](frozen-policy-audit.json). Both RL variants improve raw
+sample compliance over SFT on this test; the graded reward is more accurate and
+much more repetitive. The diversity reward reduces that repetition at a cost in
+compliance. No claim of musical quality follows from either metric.

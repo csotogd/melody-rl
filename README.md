@@ -14,33 +14,43 @@ are different things.
 
 ## Measured local result
 
-On an Apple M4 / 16 GB MacBook Air, using the same 24 validation tasks:
+**RL improved held-out constraint compliance, but reward design changed how much
+it repeated notes.** All three policies were fixed before evaluating the 48 ID
+test tasks below, with four temperature-1 samples per task:
 
-| Method | All six constraints satisfied |
-| --- | ---: |
-| Pretrained model, greedy | 0/24 |
-| SFT, greedy | 21/24 |
-| SFT + GRPO, greedy | 21/24 |
-| SFT, best of 4 stochastic samples | 18/24 |
-| Procedural rule baseline | 24/24 |
+| Policy | Greedy success | All stochastic samples | Sample repetition¹ | Best of 4 |
+| --- | ---: | ---: | ---: | ---: |
+| SFT | 34/48 | 78/192 (40.6%) | 7.0% | 38/48 |
+| SFT + GRPO, constraint reward | 43/48 | 148/192 (77.1%) | 27.1% | 43/48 |
+| SFT + GRPO, diversity reward | 39/48 | 130/192 (67.7%) | 7.7% | 45/48 |
 
-SFT ran 348 updates in 208.7 seconds. GRPO sampled 32 groups of four completions
-and made 28 updates in 288.3 seconds; four equal-reward groups were skipped.
-**This RL run did not improve compliance over SFT.** Mean adjacent repetition
-increased from 9.48% to 10.67%. This is one seed on a small development sample;
-the reserved tests remain untouched. Cloud/API spend: **€0**.
+¹ Adjacent repetition, averaged per task over valid stochastic outputs. The
+primary endpoint counts **all 192 candidates before selection**, clustered into
+48 tasks; best-of-four is a separate inference strategy. All selectors use the
+same constraint reward. These are quarter-note symbolic melodies rendered as
+simple audio, not a measure of musical quality.
 
-Best-of-4 used 1,216 generated tokens and 103.1 seconds of generation, compared
-with 298 tokens and 20.9 seconds for greedy SFT. Its four temperature-1 samples
-do not include a greedy candidate, so this strategy is not guaranteed to match
-greedy decoding. It performed worse on this small validation sample.
+The original short RL run showed no improvement. Expanding evaluation to 48 tasks
+confirmed that plateau; extending training then exposed a repetition exploit.
+A reward-only ablation reduced it while retaining some compliance improvement.
+The diversity variant still repeats templates across prompts, so this is evidence
+of learning and a reward tradeoff, not convincing musical creativity.
 
-See [experiment notes and audible progress](results/README.md),
-[raw evidence](results/local-study_assets/), and the
-[HTML comparison with MIDI/WAV previews](results/local-study.html).
-To hear the comparison, clone the repo and open the HTML file in your browser;
-GitHub itself shows its source. Audio uses a simple note synthesizer, so this
-experiment evaluates symbolic instruction following, not waveform quality.
+Both RL runs used the same SFT adapter, 128 groups of four samples and learning
+rate 5e-5. Constraint GRPO made 87 updates in 12.5 minutes; diversity GRPO made
+114 updates in 14.3 minutes. The reward changes how often groups have identical
+scores, so this is equal sampling budget, not equal optimizer updates. All runs
+used an Apple M4 / 16 GB MacBook Air. Paid cloud/API compute: **€0**.
+
+See [full experiment notes](results/README.md), [machine-readable results](results/study-summary.json),
+[validation and audio](results/extended-validation.html), and
+[held-out test and audio](results/extended-test.html). Clone the repository and open
+the HTML files locally to play the bundled WAV/MIDI examples; GitHub displays
+HTML source. Every evaluated task and all sampled candidates are included.
+
+One training seed limits the conclusion. Task-level uncertainty does not measure
+variation between independent training runs. Composition and length tests remain
+reserved; the ID test is now consumed and must not become a tuning set.
 
 ## What is implemented
 
@@ -183,7 +193,8 @@ The split is by the **full tuple of constraints**, not just different random see
 | test_length | 162 | Three-bar melodies, absent from training |
 
 Test JSONL files contain no teacher targets. Do not tune on test results. The
-pilot evaluates only four validation tasks; the test sets remain reserved.
+completed follow-up evaluates all 48 ID test tasks after freezing every policy.
+The composition and length tests remain reserved.
 `dataset_seed` fixes all task splits independently of the training `seed`. Keep
 it fixed when comparing training seeds or algorithms.
 
@@ -198,7 +209,8 @@ It is a mandatory baseline, not model output. If exact compliance is the only
 product requirement, that baseline is the right tool. The neural research question
 concerns learning, generalization, and the limitations of reward optimization.
 
-Best-of-N selects using the same training reward and logs all candidates:
+Best-of-N selects using the evaluation configuration reward and logs all candidates.
+In the controlled comparison, every policy uses the same graded selector:
 
 ```bash
 python -m melody_rl.cli evaluate --sft-adapter runs/pilot/sft/adapter --best-of 4 --output runs/pilot/bestof4
@@ -206,16 +218,36 @@ python -m melody_rl.cli evaluate --sft-adapter runs/pilot/sft/adapter --best-of 
 
 Compare its extra generated tokens and latency, not just its success rate.
 
+## Reproduce the controlled reward study
+
+After installation and the initial model download:
+
+```bash
+python -m melody_rl.cli --config configs/local-study.json data
+python -m melody_rl.cli --config configs/local-study.json sft --output runs/repro-sft
+HF_HUB_OFFLINE=1 python scripts/run_followup.py \
+  --sft-adapter runs/repro-sft/adapter \
+  --diversity-config configs/diversity-study.json --run runs/repro-rewards
+python scripts/summarize_study.py --run runs/repro-rewards --output runs/repro-rewards/study-summary.json
+python scripts/build_report.py --run runs/repro-rewards --split test_id --output runs/repro-rewards/test.html
+```
+
+The runner trains both reward variants before opening the ID test, evaluates all
+three fixed policies, and records source hashes, commands and all raw outputs.
+The historical execution paused its test coordinator to freeze the validation-
+motivated reward ablation first; [protocol and adapter hashes](results/diagnosis/)
+record that sequence. MPS results need not be bitwise deterministic.
+
 ## Next experiments
 
-1. Diagnose the three residual validation failures and reward-insensitive repetition.
-2. Compare binary, graded, and diversity-aware rewards at equal sampling budgets.
-3. Compare RL against extra SFT at documented compute budgets.
-4. Run multiple seeds, freeze decisions, then evaluate held-out splits once.
+1. Compare RL with extra SFT and alternative sampling temperatures at documented budgets.
+2. Run multiple training seeds with fixed settings; distinguish replication from new test evidence.
+3. Strengthen tonal conditioning and cross-prompt variety checks in a separately versioned task.
+4. Freeze a new protocol before evaluating the reserved composition and length splits.
 5. Add richer rhythm, phrasing, and a separately evaluated musicality criterion.
 
-No claim of novel methodology is made at this stage. Novelty requires checking the
-literature and a result beyond the reference methods.
+No claim of novel methodology is made. Distributed execution, a full modern
+post-training stack and learned audio generation remain outside the measured work.
 
 ## Sources and attribution
 

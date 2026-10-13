@@ -36,3 +36,12 @@ def test_unpaired_ids_or_unequal_budgets_rejected():
         paired_comparison([a], [record("b", [True])])
     with pytest.raises(ValueError):
         paired_comparison([a], [record("a", [True, False])])
+
+
+def test_four_binary_improvements_are_not_strong_evidence_by_themselves():
+    before = [record(str(i), [i >= 4]) for i in range(48)]
+    after = [record(str(i), [True]) for i in range(48)]
+    result = paired_comparison(before, after, resamples=100)
+    binary = result["paired_binary_selected_success"]
+    assert binary["improved"] == 4 and binary["regressed"] == 0
+    assert binary["exact_mcnemar_p_two_sided"] == .125
