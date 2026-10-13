@@ -1,0 +1,181 @@
+{
+  "protocol": "results/diagnosis/generalization-protocol.json",
+  "paid_compute_eur": 0,
+  "note": "One training seed; paired task-bootstrap intervals do not measure training variability. Both OOD endpoints are reported without multiplicity adjustment.",
+  "splits": {
+    "test_composition": {
+      "sft": {
+        "tasks": 54,
+        "greedy_successes": 48,
+        "sampled_successes": 68,
+        "sampled_completions": 216,
+        "sampled_success_rate": 0.3148148148148148,
+        "sampled_repetition_mean_per_task": 0.04045414462081128,
+        "sampled_validity": 0.9953703703703703,
+        "sampled_truncated": 0,
+        "best_of_four_successes": 39,
+        "sampled_constraint_pass_rates": {
+          "bars": 0.9814814814814815,
+          "meter": 0.9722222222222222,
+          "key": 0.5833333333333334,
+          "range": 0.6898148148148148,
+          "final": 0.9351851851851852,
+          "leap": 0.6157407407407407
+        },
+        "greedy_constraint_failures": {
+          "bars": 0,
+          "meter": 0,
+          "key": 0,
+          "range": 0,
+          "final": 0,
+          "leap": 6
+        }
+      },
+      "grpo": {
+        "tasks": 54,
+        "greedy_successes": 50,
+        "sampled_successes": 167,
+        "sampled_completions": 216,
+        "sampled_success_rate": 0.7731481481481481,
+        "sampled_repetition_mean_per_task": 0.27932098765432095,
+        "sampled_validity": 1.0,
+        "sampled_truncated": 0,
+        "best_of_four_successes": 51,
+        "sampled_constraint_pass_rates": {
+          "bars": 1.0,
+          "meter": 1.0,
+          "key": 0.9583333333333334,
+          "range": 0.9351851851851852,
+          "final": 1.0,
+          "leap": 0.8472222222222222
+        },
+        "greedy_constraint_failures": {
+          "bars": 0,
+          "meter": 0,
+          "key": 0,
+          "range": 0,
+          "final": 0,
+          "leap": 4
+        }
+      },
+      "diverse": {
+        "tasks": 54,
+        "greedy_successes": 50,
+        "sampled_successes": 111,
+        "sampled_completions": 216,
+        "sampled_success_rate": 0.5138888888888888,
+        "sampled_repetition_mean_per_task": 0.06349206349206349,
+        "sampled_validity": 0.9907407407407407,
+        "sampled_truncated": 0,
+        "best_of_four_successes": 48,
+        "sampled_constraint_pass_rates": {
+          "bars": 0.9583333333333334,
+          "meter": 0.9907407407407407,
+          "key": 0.7685185185185185,
+          "range": 0.9305555555555556,
+          "final": 0.9351851851851852,
+          "leap": 0.7083333333333334
+        },
+        "greedy_constraint_failures": {
+          "bars": 0,
+          "meter": 0,
+          "key": 0,
+          "range": 0,
+          "final": 0,
+          "leap": 4
+        }
+      },
+      "rules": {
+        "tasks": 54,
+        "successes": 54
+      }
+    },
+    "test_length": {
+      "sft": {
+        "tasks": 162,
+        "greedy_successes": 0,
+        "sampled_successes": 8,
+        "sampled_completions": 648,
+        "sampled_success_rate": 0.012345679012345678,
+        "sampled_repetition_mean_per_task": 0.049310064935064936,
+        "sampled_validity": 0.9845679012345679,
+        "sampled_truncated": 0,
+        "best_of_four_successes": 8,
+        "sampled_constraint_pass_rates": {
+          "bars": 0.11419753086419752,
+          "meter": 0.9305555555555556,
+          "key": 0.6111111111111112,
+          "range": 0.6033950617283951,
+          "final": 0.7037037037037037,
+          "leap": 0.48148148148148145
+        },
+        "greedy_constraint_failures": {
+          "bars": 162,
+          "meter": 0,
+          "key": 0,
+          "range": 6,
+          "final": 68,
+          "leap": 25
+        }
+      },
+      "grpo": {
+        "tasks": 162,
+        "greedy_successes": 2,
+        "sampled_successes": 38,
+        "sampled_completions": 648,
+        "sampled_success_rate": 0.05864197530864197,
+        "sampled_repetition_mean_per_task": 0.29744240241925424,
+        "sampled_validity": 0.9969135802469136,
+        "sampled_truncated": 0,
+        "best_of_four_successes": 33,
+        "sampled_constraint_pass_rates": {
+          "bars": 0.09567901234567901,
+          "meter": 0.9382716049382716,
+          "key": 0.9645061728395061,
+          "range": 0.8981481481481481,
+          "final": 0.8441358024691358,
+          "leap": 0.7824074074074074
+        },
+        "greedy_constraint_failures": {
+          "bars": 158,
+          "meter": 13,
+          "key": 0,
+          "range": 5,
+          "final": 52,
+          "leap": 11
+        }
+      },
+      "diverse": {
+        "tasks": 162,
+        "greedy_successes": 71,
+        "sampled_successes": 61,
+        "sampled_completions": 648,
+        "sampled_success_rate": 0.0941358024691358,
+        "sampled_repetition_mean_per_task": 0.08478089982719612,
+        "sampled_validity": 0.9969135802469136,
+        "sampled_truncated": 0,
+        "best_of_four_successes": 51,
+        "sampled_constraint_pass_rates": {
+          "bars": 0.3595679012345679,
+          "meter": 0.9135802469135802,
+          "key": 0.8580246913580247,
+          "range": 0.8580246913580247,
+          "final": 0.8549382716049383,
+          "leap": 0.6003086419753086
+        },
+        "greedy_constraint_failures": {
+          "bars": 68,
+          "meter": 0,
+          "key": 0,
+          "range": 3,
+          "final": 9,
+          "leap": 22
+        }
+      },
+      "rules": {
+        "tasks": 162,
+        "successes": 162
+      }
+    }
+  }
+}

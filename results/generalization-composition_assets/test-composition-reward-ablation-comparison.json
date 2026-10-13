@@ -1,0 +1,116 @@
+{
+  "tasks": 54,
+  "candidates_per_policy": 216,
+  "bootstrap_seed": 42,
+  "bootstrap_resamples": 10000,
+  "interval_note": "Paired percentile bootstrap over tasks; conditional on one training seed. Repeated samples are not independent tasks. A collapsed interval with no discordant tasks does not establish equivalence.",
+  "metrics": {
+    "candidate_success": {
+      "paired_tasks": 54,
+      "before": 0.7731481481481481,
+      "after": 0.5138888888888888,
+      "difference": -0.25925925925925924,
+      "difference_ci95": [
+        -0.33796296296296297,
+        -0.18055555555555555
+      ]
+    },
+    "selected_success": {
+      "paired_tasks": 54,
+      "before": 0.9444444444444444,
+      "after": 0.8888888888888888,
+      "difference": -0.05555555555555555,
+      "difference_ci95": [
+        -0.14814814814814814,
+        0.037037037037037035
+      ]
+    },
+    "candidate_validity": {
+      "paired_tasks": 54,
+      "before": 1.0,
+      "after": 0.9907407407407407,
+      "difference": -0.009259259259259259,
+      "difference_ci95": [
+        -0.023148148148148147,
+        0.0
+      ]
+    },
+    "candidate_repetition": {
+      "paired_tasks": 54,
+      "before": 0.27932098765432095,
+      "after": 0.06349206349206349,
+      "difference": -0.21582892416225746,
+      "difference_ci95": [
+        -0.24867724867724864,
+        -0.18342151675485005
+      ]
+    },
+    "candidate_bars": {
+      "paired_tasks": 54,
+      "before": 1.0,
+      "after": 0.9583333333333334,
+      "difference": -0.041666666666666664,
+      "difference_ci95": [
+        -0.07407407407407407,
+        -0.013888888888888888
+      ]
+    },
+    "candidate_meter": {
+      "paired_tasks": 54,
+      "before": 1.0,
+      "after": 0.9907407407407407,
+      "difference": -0.009259259259259259,
+      "difference_ci95": [
+        -0.023148148148148147,
+        0.0
+      ]
+    },
+    "candidate_key": {
+      "paired_tasks": 54,
+      "before": 0.9583333333333334,
+      "after": 0.7685185185185185,
+      "difference": -0.18981481481481483,
+      "difference_ci95": [
+        -0.25,
+        -0.12962962962962962
+      ]
+    },
+    "candidate_range": {
+      "paired_tasks": 54,
+      "before": 0.9351851851851852,
+      "after": 0.9305555555555556,
+      "difference": -0.004629629629629629,
+      "difference_ci95": [
+        -0.041666666666666664,
+        0.037037037037037035
+      ]
+    },
+    "candidate_final": {
+      "paired_tasks": 54,
+      "before": 1.0,
+      "after": 0.9351851851851852,
+      "difference": -0.06481481481481481,
+      "difference_ci95": [
+        -0.10185185185185185,
+        -0.032407407407407406
+      ]
+    },
+    "candidate_leap": {
+      "paired_tasks": 54,
+      "before": 0.8472222222222222,
+      "after": 0.7083333333333334,
+      "difference": -0.1388888888888889,
+      "difference_ci95": [
+        -0.2175925925925926,
+        -0.06481481481481481
+      ]
+    }
+  },
+  "paired_binary_selected_success": {
+    "improved": 2,
+    "regressed": 5,
+    "unchanged": 47,
+    "exact_mcnemar_p_two_sided": 0.453125,
+    "note": "Secondary binary endpoint; unadjusted exact paired test. Few discordant tasks can make percentile bootstrap intervals overconfident; do not infer significance from those intervals alone."
+  }
+}

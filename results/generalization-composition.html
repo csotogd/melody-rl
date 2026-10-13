@@ -1,0 +1,1326 @@
+<!doctype html><html lang="es"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>melody-rl · resultados locales</title>
+<style>body{font:16px/1.6 system-ui,sans-serif;background:#f5f4ef;color:#182823;margin:0}main{max-width:1100px;margin:auto;padding:48px 24px}h1{font-size:48px;letter-spacing:-2px;margin:8px 0}h2{margin-top:40px}.tag{color:#496a5d;text-transform:uppercase;letter-spacing:2px;font-size:12px}.intro{max-width:750px}.notice{border-left:4px solid #b08330;padding:12px 18px;background:#fff9e9}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;background:white}th,td{text-align:left;padding:14px;border-bottom:1px solid #ddd}th{font-size:13px}code,pre{font:14px/1.5 ui-monospace,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef1ed;padding:12px;border-radius:8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.card{background:white;padding:20px;border:1px solid #ddd;border-radius:12px}.pass{color:#276848}.fail{color:#9c492e}audio{width:100%;height:36px}a{color:#265a4a}.muted{color:#59685f;font-size:14px}details{margin:12px 0}footer{margin-top:48px;border-top:1px solid #ccc;padding-top:16px}</style><main>
+<div class="tag">Entrenamiento local · test_composition</div><h1>melody-rl</h1>
+<p class="intro">¿Puede el post-training mejorar el cumplimiento de instrucciones musicales? Qwen3-0.6B + LoRA + GRPO, con recompensas verificables y melodías cortas.</p>
+<p class="notice"><strong>Estudio pequeño, una semilla de entrenamiento.</strong> El cumplimiento de restricciones no mide calidad musical. El audio es una síntesis sencilla de las notas, no audio generado por el modelo. Los resultados no establecen robustez entre entrenamientos independientes.</p>
+<p class="intro"><strong>SFT (ajuste fino supervisado)</strong>: aprende de ejemplos de melodías correctas. <strong>GRPO</strong>: es el método de aprendizaje por refuerzo (RL) que usamos después; compara melodías propuestas por el modelo y actualiza sus pesos según las reglas que cumplen. <strong>Best-of-N</strong>: genera N alternativas y elige la mejor puntuación, sin entrenamiento adicional.</p>
+<h2>Resultados medidos</h2><div class="scroll"><table><thead><tr><th>Método</th><th>Todas las restricciones</th><th>Formato válido</th><th>Restricciones cumplidas, media</th><th>Repetición consecutiva¹</th></tr></thead><tbody>
+<tr><td>SFT · determinista</td><td>48/54 <span class="muted">(IC 95%: 78%–95%)</span></td><td>100%</td><td>98%</td><td>0%</td></tr>
+<tr><td>SFT + GRPO · reglas · determinista</td><td>50/54 <span class="muted">(IC 95%: 82%–97%)</span></td><td>100%</td><td>99%</td><td>76%</td></tr>
+<tr><td>SFT + GRPO · variedad · determinista</td><td>50/54 <span class="muted">(IC 95%: 82%–97%)</span></td><td>100%</td><td>99%</td><td>0%</td></tr>
+<tr><td>SFT · best-of-4</td><td>39/54 <span class="muted">(IC 95%: 59%–82%)</span></td><td>100%</td><td>94%</td><td>6%</td></tr>
+<tr><td>SFT + GRPO · reglas · best-of-4</td><td>51/54 <span class="muted">(IC 95%: 85%–98%)</span></td><td>100%</td><td>99%</td><td>28%</td></tr>
+<tr><td>SFT + GRPO · variedad · best-of-4</td><td>48/54 <span class="muted">(IC 95%: 78%–95%)</span></td><td>100%</td><td>98%</td><td>7%</td></tr>
+<tr><td>Generador por reglas</td><td>54/54 <span class="muted">(IC 95%: 93%–100%)</span></td><td>100%</td><td>100%</td><td>0%</td></tr>
+</tbody></table></div><p class="muted">¹ Solo salidas válidas. El generador por reglas garantiza las restricciones por construcción: es un control, no una salida del modelo.</p>
+<p class="notice">La recompensa de <strong>variedad</strong> favorece evitar notas seguidas iguales y usar al menos tres alturas distintas. Es una señal sencilla: una plantilla alternante también puede puntuar bien. Best-of-4 usa el mismo criterio de selección por reglas para todas las políticas.</p>
+<h2>Fiabilidad de una alternativa aleatoria</h2><p>Contamos todas las alternativas generadas, antes de elegir la mejor. Esta medida permite comprobar si RL mejora la distribución de respuestas.</p><div class="scroll"><table><thead><tr><th>Modelo</th><th>Alternativas que cumplen todo</th><th>Repetición consecutiva</th><th>Tareas distintas</th></tr></thead><tbody>
+<tr><td>SFT</td><td>68/216 (31.5%)</td><td>4.0%</td><td>54</td></tr>
+<tr><td>SFT + GRPO · reglas</td><td>167/216 (77.3%)</td><td>27.9%</td><td>54</td></tr>
+<tr><td>SFT + GRPO · variedad</td><td>111/216 (51.4%)</td><td>6.3%</td><td>54</td></tr>
+</tbody></table></div><p class="muted">Repetición: media por tarea sobre sus salidas válidas. Las alternativas de una misma tarea no cuentan como tareas independientes. Los intervalos de las diferencias se calculan remuestreando tareas completas.</p>
+<details><summary>Coste de generación de esta evaluación</summary><div class="scroll"><table><thead><tr><th>Método</th><th>Tokens generados</th><th>Tiempo de generación</th><th>Tiempo total</th></tr></thead><tbody>
+<tr><td>SFT · determinista</td><td>729</td><td>28.6 s</td><td>38.3 s</td></tr>
+<tr><td>SFT + GRPO · reglas · determinista</td><td>729</td><td>30.7 s</td><td>36.7 s</td></tr>
+<tr><td>SFT + GRPO · variedad · determinista</td><td>729</td><td>30.0 s</td><td>36.5 s</td></tr>
+<tr><td>SFT · best-of-4</td><td>2,931</td><td>42.3 s</td><td>48.4 s</td></tr>
+<tr><td>SFT + GRPO · reglas · best-of-4</td><td>2,918</td><td>42.3 s</td><td>48.9 s</td></tr>
+<tr><td>SFT + GRPO · variedad · best-of-4</td><td>2,987</td><td>44.6 s</td><td>50.7 s</td></tr>
+<tr><td>Generador por reglas</td><td>0</td><td>0.0 s</td><td>0.7 s</td></tr>
+</tbody></table></div><p class="muted">Best-of-N cuenta las N alternativas, incluidas las descartadas. El tiempo total incluye carga del modelo y exportación de audio. El generador por reglas no usa tokens del modelo; su tiempo de generación no se instrumenta por separado.</p></details>
+<h2>Escucha e inspecciona</h2>
+<details open><summary>Ejemplo 1 · 74d9b911848f5784</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note D5; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/000.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/000.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/000.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/000.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/000.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/000.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>D5 A#4 G4 C5 | D5 C5 G4 D5</pre>
+<p class="muted">Fallos: key</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/000.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/000.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/000.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/000.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 C5 | A4 G4 C5 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/000.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/000.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F#4 G4 A4 G4 | B4 F#4 G4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/000.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/000.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 2 · 3db9e5c26cbc0f59</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note G4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/001.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/001.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/001.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/001.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/001.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/001.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 D5 C5 A4 | G4 A4 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/001.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/001.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4 | A4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/001.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/001.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>G4 A4 D5 G4 | A4 G4 A4 G4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/001.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/001.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 C5 G4 A4 | E4 F#4 D4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/001.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/001.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 3 · 835ba69f27785f8c</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note D4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/002.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/002.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 A4 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/002.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/002.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/002.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/002.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>B4 G4 D4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/002.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/002.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>D4 A4 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/002.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/002.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 D4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/002.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/002.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F#4 B4 G4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/002.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/002.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 4 · ba5425e116c62650</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note G4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/003.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/003.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/003.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/003.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/003.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/003.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 D5 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/003.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/003.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/003.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/003.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/003.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/003.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 A4 F#4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/003.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/003.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 5 · 46237cb4f15a1d9f</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note D5; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/004.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/004.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/004.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/004.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/004.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/004.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>D5 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/004.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/004.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/004.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/004.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/004.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/004.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/004.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/004.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 6 · 15373ac3b95f2215</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note B4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/005.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/005.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/005.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/005.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/005.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/005.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 D5 B4 D5 | A4 C5 D5 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/005.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/005.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 A4 G4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/005.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/005.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 C5 | A4 G4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/005.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/005.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 B4 A4 B4 | A4 D4 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/005.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/005.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 7 · 893056c8dd996b31</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note B4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/006.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/006.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/006.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/006.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/006.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/006.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 C5 E5 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/006.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/006.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 C5 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/006.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/006.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/006.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/006.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 C5 D5 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/006.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/006.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 8 · 576821835c4e2c4b</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note B4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/007.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/007.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/007.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/007.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/007.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/007.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 G4 D4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/007.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/007.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/007.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/007.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 G4 D4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/007.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/007.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 F#4 C4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/007.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/007.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 9 · ce1eeba0111bc308</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note G4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D4 | A4 C5 A4 G4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/008.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/008.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/008.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/008.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/008.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/008.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>B4 G4 C5 A4 | C5 B4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/008.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/008.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 A4 | A4 A4 G4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/008.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/008.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 C5 A4 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/008.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/008.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D4 F#4 G4 E4 | F#4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/008.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/008.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 10 · 9282fcb8111fc90b</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note B4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/009.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/009.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/009.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/009.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/009.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/009.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 D5 C5 G5 | A4 C5 B4 B4</pre>
+<p class="muted">Fallos: range</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/009.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/009.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 C5 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/009.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/009.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 C5 A4 | A4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/009.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/009.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D5 G4 A4 G4 | C5 D5 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/009.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/009.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 11 · 4d4f54d8132c1493</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note D4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/010.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/010.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/010.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/010.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/010.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/010.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>E4 G4 A4 D4 | B4 A4 D4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/010.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/010.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D4 | A4 G4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/010.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/010.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>D5 C5 G4 D4 | C5 A4 D5 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/010.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/010.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F#4 D5 G4 A4 | C5 D4 G4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/010.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/010.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 12 · 80f5ed5ebef05dc2</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note G4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/011.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/011.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/011.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/011.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/011.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/011.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>E4 A4 E4 C4 | E4 D4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/011.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/011.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 G4 A4 | A4 G4 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/011.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/011.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>D4 C5 A4 E4 | C4 D4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/011.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/011.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F#4 B4 A4 G4 | D4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/011.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/011.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 13 · dfda9a5e6caaaf2b</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note D4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/012.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/012.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/012.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/012.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/012.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/012.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 D4 C5 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/012.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/012.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>C4 G4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/012.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/012.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>D4 E4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/012.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/012.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 G4 E4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/012.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/012.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 14 · d3ed5a5ca535e5f2</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note D4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/013.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/013.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 A4 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/013.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/013.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/013.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/013.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>D5 A4 E4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/013.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/013.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/013.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/013.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/013.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/013.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>E4 F#4 E4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/013.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/013.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 15 · e7db8927b2c827ac</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note D4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4 | A4 D4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/014.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/014.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/014.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/014.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/014.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/014.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 C5 G4 | C5 G4 D4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/014.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/014.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 A4 | A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/014.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/014.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>C5 G4 D4 C5 | A4 G4 C5 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/014.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/014.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 A4 C5 B4 | G4 D4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/014.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/014.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 16 · 847b6bd66c465907</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note B4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/015.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/015.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/015.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/015.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/015.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/015.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 F#4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/015.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/015.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/015.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/015.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/015.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/015.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 G4 F#4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/015.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/015.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 17 · a07bf30c27fc37d2</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note G4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/016.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/016.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/016.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/016.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/016.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/016.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/016.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/016.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/016.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/016.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/016.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/016.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/016.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/016.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 18 · 4f5f603a4546ce22</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note D5; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/017.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/017.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/017.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/017.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/017.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/017.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 D5 A4 B4 | D5 A4 C5 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/017.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/017.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 A4 | A4 D5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/017.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/017.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 A4 | A4 C5 D5 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/017.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/017.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 A4 G4 C5 | B4 F#4 B4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/017.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/017.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 19 · a0118e263c877d28</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note B4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/018.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/018.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/018.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/018.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/018.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/018.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>G4 C5 G5 C5 | A4 E5 C4 B4</pre>
+<p class="muted">Fallos: range, leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/018.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/018.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 C5 A4 | A4 G4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/018.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/018.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 D5 A4 | G4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/018.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/018.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 G4 B4 A4 | D5 B4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/018.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/018.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 20 · 22a6f6c6939b0643</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note D5; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/019.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/019.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/019.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/019.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/019.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/019.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 D5 A4 | F#4 A4 D5 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/019.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/019.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 G4 A4 A4 | C5 A4 G4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/019.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/019.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 C5 A4 | A4 A4 D5 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/019.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/019.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 A4 B4 G4 | D5 G4 B4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/019.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/019.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 21 · e0e3c636c8e4ab2f</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note B4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/020.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/020.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/020.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/020.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/020.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/020.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>C5 D5 F4 F4 | C5 D4 A4 B4</pre>
+<p class="muted">Fallos: key</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/020.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/020.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 A4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/020.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/020.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 A4 | A4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/020.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/020.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F#4 A4 E4 D5 | D4 E4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/020.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/020.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 22 · 4f24c285490490c8</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note G4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/021.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/021.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/021.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/021.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/021.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/021.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>D5 E5 D5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/021.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/021.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/021.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/021.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/021.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/021.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 B4 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/021.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/021.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 23 · f04b2e120182c9a2</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note D4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/022.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/022.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/022.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/022.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/022.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/022.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/022.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/022.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/022.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/022.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 D5 C5 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/022.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/022.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 D4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/022.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/022.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 24 · 04ab976f379287b8</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note D5; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/023.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/023.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/023.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/023.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/023.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/023.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 D5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/023.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/023.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/023.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/023.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/023.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/023.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 A4 C5 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/023.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/023.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 25 · d8a177169f4f00f4</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note B4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/024.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/024.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/024.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/024.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/024.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/024.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>D5 C5 C5 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/024.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/024.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/024.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/024.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/024.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/024.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 B4 F#4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/024.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/024.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 26 · a8d9c072066cb2f1</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note D4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D4 | A4 D5 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/025.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/025.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 A4 A4 A4 | A4 A4 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/025.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/025.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D5 | A4 D5 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/025.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/025.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 D5 G4 A4 | D4 G4 E4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/025.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/025.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 G4 | A4 D4 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/025.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/025.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 G4 D5 A4 | A4 G4 D5 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/025.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/025.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 A4 B4 A4 | F#4 D4 E4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/025.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/025.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 27 · 73c1a190f0683b90</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note G4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/026.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/026.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/026.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/026.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/026.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/026.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>D5 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/026.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/026.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>E4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/026.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/026.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/026.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/026.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 D5 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/026.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/026.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 28 · 5d64dda41a862e39</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note D4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/027.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/027.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/027.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/027.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/027.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/027.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/027.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/027.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/027.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/027.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/027.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/027.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F#4 D4 E4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/027.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/027.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 29 · 296c794217cb0417</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note G4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/028.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/028.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/028.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/028.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/028.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/028.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>G4 E4 G4 F4 | D4 E4 F4 G4</pre>
+<p class="muted">Fallos: key</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/028.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/028.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/028.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/028.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 D5 A4 | A4 D5 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/028.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/028.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 E4 A4 B4 | C5 G4 D4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/028.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/028.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 30 · a60ca14204d277bf</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note B4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/029.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/029.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/029.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/029.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/029.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/029.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 D5 B4 | A4 F#4 B4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/029.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/029.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 C5 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/029.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/029.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 G4 | G4 A4 D5 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/029.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/029.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 F#4 E4 F#4 | G4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/029.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/029.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 31 · ded3799acd5236ec</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note D4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D4 | A4 D4 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/030.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/030.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 A4 A4 A4 | A4 A4 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/030.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/030.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 G4 | A4 C5 A4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/030.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/030.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>F4 C5 A4 D4 | F4 G4 C4 D4</pre>
+<p class="muted">Fallos: key, leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/030.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/030.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 A4 | G4 A4 G4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/030.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/030.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 G4 C5 E4 | A4 D4 G4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/030.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/030.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C5 G4 A4 B4 | F#4 D4 C4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/030.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/030.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 32 · d6f8fee37a5417be</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note B4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/031.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/031.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/031.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/031.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/031.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/031.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 A4 B4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/031.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/031.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/031.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/031.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/031.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/031.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 D4 F#4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/031.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/031.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 33 · 521f2d5e060470eb</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note B4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/032.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/032.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/032.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/032.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/032.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/032.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 F4 A#4 D5 | E5 D5 A4 B4</pre>
+<p class="muted">Fallos: key</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/032.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/032.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 A4 | G4 A4 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/032.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/032.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 G4 | A4 D5 G4 B4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/032.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/032.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 F#4 | B4 A4 D5 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/032.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/032.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 34 · cb49333a467dc4ba</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note G4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/033.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/033.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/033.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/033.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/033.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/033.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>G5 D5 A4 F5 | G5 F5 A5 G4</pre>
+<p class="muted">Fallos: key, range, leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/033.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/033.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 A4 A4 A4 | C5 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/033.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/033.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 C5 G4 | A4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/033.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/033.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>E5 D5 A4 D5 | C5 E5 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/033.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/033.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 35 · c29e72e5e4bdf18f</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note G4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/034.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/034.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/034.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/034.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/034.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/034.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>E5 A4 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/034.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/034.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/034.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/034.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/034.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/034.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 C5 B4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/034.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/034.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 36 · aafe469fd1ac8b6a</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note G4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/035.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/035.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/035.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/035.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/035.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/035.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>E4 A4 B4 A4 | D4 F4 A4 G4</pre>
+<p class="muted">Fallos: key</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/035.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/035.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>D4 A4 C5 A4 | G4 A4 G4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/035.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/035.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 A4 | A4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/035.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/035.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D5 E4 F#4 E4 | G4 F#4 D5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/035.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/035.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 37 · 9da5de28b6e0f241</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note G4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/036.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/036.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/036.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/036.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/036.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/036.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>C5 F5 C5 A#4 | A4 F4 A4 G4</pre>
+<p class="muted">Fallos: key</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/036.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/036.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 C5 | A4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/036.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/036.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 C5 | G4 A4 F4 G4</pre>
+<p class="muted">Fallos: key</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/036.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/036.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D5 E5 C5 E5 | B4 F#4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/036.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/036.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 38 · 9b0c6689d2fd2c89</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note B4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/037.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/037.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/037.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/037.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/037.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/037.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 D5 C5 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/037.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/037.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/037.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/037.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/037.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/037.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/037.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/037.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 39 · 0f305f17ad86de3d</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note B4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/038.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/038.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/038.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/038.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/038.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/038.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/038.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/038.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/038.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/038.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/038.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/038.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 A4 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/038.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/038.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 40 · 5f3230ad80dc1b07</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note G4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/039.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/039.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/039.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/039.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/039.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/039.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>C4 G4 D4 A4 | B4 A4 D4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/039.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/039.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 G4 | A4 A4 G4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/039.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/039.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 C5 | A4 G4 D4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/039.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/039.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 A4 B4 A4 | E4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/039.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/039.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 41 · 0ce345675d61fcc4</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note B4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/040.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/040.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/040.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/040.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/040.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/040.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>D4 A4 G4 C4 | E4 B4 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/040.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/040.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 A4 | A4 G4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/040.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/040.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4 A4 | G4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/040.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/040.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D4 E4 A4 C5 | B4 C5 F#4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/040.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/040.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 42 · 930c58a4b196406a</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between F4 and F5 inclusive; last note D5; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/041.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/041.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/041.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/041.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/041.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/041.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>D5 C5 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/041.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/041.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/041.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/041.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 C5 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/041.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/041.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F#4 C5 B4 D5</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/041.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/041.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 43 · 0c4938fb87ed56d3</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note B4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/042.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/042.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/042.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/042.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/042.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/042.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 D5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/042.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/042.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/042.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/042.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/042.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/042.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 E4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/042.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/042.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 44 · 59b2336c175268d6</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between D4 and D5 inclusive; last note G4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/043.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/043.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/043.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/043.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/043.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/043.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>D4 F#4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/043.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/043.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/043.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/043.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/043.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/043.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 C5 E4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/043.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/043.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 45 · fdfd8418f431df00</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note D4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/044.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/044.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/044.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/044.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/044.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/044.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 D4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/044.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/044.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/044.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/044.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 G4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/044.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/044.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 F#4 C4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/044.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/044.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 46 · 43deab0c3338038f</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note G4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/045.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/045.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/045.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/045.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/045.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/045.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/045.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/045.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/045.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/045.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/045.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/045.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>C4 D4 E4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/045.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/045.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 47 · 929dd0c0a7331caa</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note B4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/046.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/046.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/046.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/046.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/046.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/046.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>F#4 F4 G4 F4 | A#4 F#4 C4 B4</pre>
+<p class="muted">Fallos: key</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/046.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/046.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 G4 A4 | A4 G4 D4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/046.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/046.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 C5 D4 | A4 G4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/046.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/046.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>A4 C4 B4 D4 | F#4 D4 F#4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/046.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/046.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 48 · 8fffa3757dab9221</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between D4 and D5 inclusive; last note D4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4 | A4 D5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/047.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/047.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/047.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/047.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 D5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/047.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/047.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>B4 C5 B4 D5 | A4 C5 D4 D4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/047.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/047.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 A4 G4 | A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/047.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/047.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4 A4 | A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/047.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/047.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D5 G4 F#4 B4 | D5 B4 E4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/047.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/047.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 49 · 64e654081f1a55db</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note G4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/048.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/048.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/048.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/048.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/048.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/048.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 D4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/048.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/048.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/048.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/048.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/048.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/048.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 C4 D4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/048.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/048.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 50 · 58bb36ad4905d61b</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note G4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/049.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/049.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/049.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/049.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/049.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/049.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 D4 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/049.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/049.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>G4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/049.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/049.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 D4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/049.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/049.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>D4 A4 C4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/049.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/049.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 51 · 2cc30d5d02414761</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note D4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D4 | A4 D4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/050.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/050.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/050.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/050.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/050.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/050.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>C5 B4 D4 C4 | D4 E4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/050.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/050.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 C5 | A4 D4 A4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/050.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/050.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 G4 | A4 D4 G4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/050.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/050.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 C5 G4 A4 | G4 A4 G4 D4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/050.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/050.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 52 · 3a5b3288e18a041b</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between F4 and F5 inclusive; last note G4; no melodic leap larger than 12 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 D5 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/051.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/051.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/051.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/051.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/051.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/051.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 G4 A#4 G4 | A#4 D5 G4 G4</pre>
+<p class="muted">Fallos: key</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/051.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/051.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 A4 | G4 A4 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/051.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/051.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 G4 D5 | G4 D5 A4 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/051.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/051.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>B4 G4 F#4 A4 | E5 D5 C5 G4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/051.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/051.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 53 · 7d9a8f60775a1feb</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 2 bars; all pitches between C4 and C5 inclusive; last note B4; no melodic leap larger than 5 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="fail">Incumple restricciones</p><pre>A4 C5 A4 D4 | A4 C5 A4 B4</pre>
+<p class="muted">Fallos: leap</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/052.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/052.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/052.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/052.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/052.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/052.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="fail">Incumple restricciones</p><pre>A4 B4 A4 B4</pre>
+<p class="muted">Fallos: bars</p>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/052.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/052.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 A4 | A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/052.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/052.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 G4 | G4 D4 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/052.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/052.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>G4 E4 A4 G4 | F#4 D4 G4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/052.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/052.mid" download>MIDI</a>
+</article>
+</div></details>
+<details ><summary>Ejemplo 54 · 5fa28e93224686df</summary><p class="muted">Write only a melody, without explanation or markdown. Use pitch names with octave numbers, e.g. C4 D4 E4 | G4 E4 C4. Every note is a quarter note. Separate bars with |. No rests. Requirements: G major; 4/4 meter; exactly 1 bars; all pitches between C4 and C5 inclusive; last note B4; no melodic leap larger than 7 semitones.</p><div class="grid">
+<article class="card"><strong>SFT · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-greedy/audio/053.wav"></audio><a href="generalization-composition_assets/test-composition-sft-greedy/audio/053.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · determinista</strong><p class="pass">Cumple todo</p><pre>A4 A4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-greedy/audio/053.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-greedy/audio/053.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · determinista</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-greedy/audio/053.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-greedy/audio/053.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT · best-of-4</strong><p class="pass">Cumple todo</p><pre>C4 G4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-sft-sampled/audio/053.wav"></audio><a href="generalization-composition_assets/test-composition-sft-sampled/audio/053.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · reglas · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 G4 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-grpo-sampled/audio/053.wav"></audio><a href="generalization-composition_assets/test-composition-grpo-sampled/audio/053.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>SFT + GRPO · variedad · best-of-4</strong><p class="pass">Cumple todo</p><pre>A4 C5 A4 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-diverse-sampled/audio/053.wav"></audio><a href="generalization-composition_assets/test-composition-diverse-sampled/audio/053.mid" download>MIDI</a>
+</article>
+<article class="card"><strong>Generador por reglas</strong><p class="pass">Cumple todo</p><pre>F#4 G4 C5 B4</pre>
+<audio controls preload="none" src="generalization-composition_assets/test-composition-rules/audio/053.wav"></audio><a href="generalization-composition_assets/test-composition-rules/audio/053.mid" download>MIDI</a>
+</article>
+</div></details>
+<footer><strong>Evidencia reproducible</strong><p>Los registros contienen todas las salidas, configuraciones y métricas, incluidos los fallos.</p><ul>
+<li>SFT · determinista: <a href="generalization-composition_assets/test-composition-sft-greedy/summary.json">métricas</a> · <a href="generalization-composition_assets/test-composition-sft-greedy/predictions.jsonl">predicciones</a></li>
+<li>SFT + GRPO · reglas · determinista: <a href="generalization-composition_assets/test-composition-grpo-greedy/summary.json">métricas</a> · <a href="generalization-composition_assets/test-composition-grpo-greedy/predictions.jsonl">predicciones</a></li>
+<li>SFT + GRPO · variedad · determinista: <a href="generalization-composition_assets/test-composition-diverse-greedy/summary.json">métricas</a> · <a href="generalization-composition_assets/test-composition-diverse-greedy/predictions.jsonl">predicciones</a></li>
+<li>SFT · best-of-4: <a href="generalization-composition_assets/test-composition-sft-sampled/summary.json">métricas</a> · <a href="generalization-composition_assets/test-composition-sft-sampled/predictions.jsonl">predicciones</a></li>
+<li>SFT + GRPO · reglas · best-of-4: <a href="generalization-composition_assets/test-composition-grpo-sampled/summary.json">métricas</a> · <a href="generalization-composition_assets/test-composition-grpo-sampled/predictions.jsonl">predicciones</a></li>
+<li>SFT + GRPO · variedad · best-of-4: <a href="generalization-composition_assets/test-composition-diverse-sampled/summary.json">métricas</a> · <a href="generalization-composition_assets/test-composition-diverse-sampled/predictions.jsonl">predicciones</a></li>
+<li>Generador por reglas: <a href="generalization-composition_assets/test-composition-rules/summary.json">métricas</a> · <a href="generalization-composition_assets/test-composition-rules/predictions.jsonl">predicciones</a></li>
+<li><a href="generalization-composition_assets/test-composition-greedy-comparison.json">Diferencias e intervalos por tarea · greedy</a></li>
+<li><a href="generalization-composition_assets/test-composition-sampled-comparison.json">Diferencias e intervalos por tarea · sampled</a></li>
+<li><a href="generalization-composition_assets/test-composition-diverse-greedy-comparison.json">Diferencias e intervalos por tarea · diverse-greedy</a></li>
+<li><a href="generalization-composition_assets/test-composition-diverse-sampled-comparison.json">Diferencias e intervalos por tarea · diverse-sampled</a></li>
+<li><a href="generalization-composition_assets/test-composition-reward-ablation-comparison.json">Diferencias e intervalos por tarea · reward-ablation</a></li>
+</ul><p class="muted">Datos sintéticos propios · modelo Qwen3-0.6B · código MIT · Este informe evalúa generalización con modelos fijados. El test mostrado ya está consumido; no se debe usar para ajustar estos modelos.</p></footer></main></html>

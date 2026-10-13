@@ -112,3 +112,7 @@ reserved ID test. All policies were fixed first, as recorded in the
 sample compliance over SFT on this test; the graded reward is more accurate and
 much more repetitive. The diversity reward reduces that repetition at a cost in
 compliance. No claim of musical quality follows from either metric.
+
+The subsequent [OOD study](../README.md#generalization-with-unchanged-models)
+uses the same frozen policies on all composition and length tasks. Those tests
+are now consumed too; the historical registration above remains unchanged.

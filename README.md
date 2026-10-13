@@ -49,8 +49,31 @@ the HTML files locally to play the bundled WAV/MIDI examples; GitHub displays
 HTML source. Every evaluated task and all sampled candidates are included.
 
 One training seed limits the conclusion. Task-level uncertainty does not measure
-variation between independent training runs. Composition and length tests remain
-reserved; the ID test is now consumed and must not become a tuning set.
+variation between independent training runs. The later OOD evaluation below also
+consumes the composition and length tests.
+None of these test scores should become an undeclared tuning target.
+
+## Generalization beyond the training families
+
+The same frozen models were subsequently evaluated under a precommitted protocol,
+without further training. All four samples per task are counted:
+
+| Test set | Tasks | SFT | Constraint RL | Diversity RL |
+| --- | ---: | ---: | ---: | ---: |
+| G major + 4/4, unseen combination | 54 | 31.5% | 77.3% | 51.4% |
+| Three bars, unseen length | 162 | 1.2% | 5.9% | 9.4% |
+
+Length generalization remains fragile. Diversity RL solves **71/162** three-bar
+tasks with greedy decoding, versus 0/162 for SFT and 2/162 for constraint RL.
+Its temperature-1 samples succeed only 9.4% of the time; best-of-four solves
+51/162. These decoding strategies are reported separately rather than selecting
+the best one per test after seeing the scores.
+
+See the [overview with links to every audio comparison](results/index.html) and
+[full results, uncertainty and failure diagnosis](results/README.md). These sets
+measure different shifts and are not pooled into one headline score. All original
+tests are now consumed. New model development requires a new held-out evaluation;
+these scores must not silently become a tuning target.
 
 ## What is implemented
 
@@ -194,7 +217,8 @@ The split is by the **full tuple of constraints**, not just different random see
 
 Test JSONL files contain no teacher targets. Do not tune on test results. The
 completed follow-up evaluates all 48 ID test tasks after freezing every policy.
-The composition and length tests remain reserved.
+The subsequent generalization study evaluates composition and length too, with
+unchanged policies. All original test splits are now consumed.
 `dataset_seed` fixes all task splits independently of the training `seed`. Keep
 it fixed when comparing training seeds or algorithms.
 
@@ -238,12 +262,26 @@ The historical execution paused its test coordinator to freeze the validation-
 motivated reward ablation first; [protocol and adapter hashes](results/diagnosis/)
 record that sequence. MPS results need not be bitwise deterministic.
 
+Evaluate new fixed adapters on the OOD splits, without training:
+
+```bash
+HF_HUB_OFFLINE=1 python scripts/run_generalization.py \
+  --data runs/repro-rewards/data --run runs/repro-ood --output runs/repro-ood-reports \
+  --sft-adapter runs/repro-sft/adapter \
+  --graded-adapter runs/repro-rewards/grpo/adapter \
+  --diverse-adapter runs/repro-rewards/diverse/adapter
+python scripts/diagnose_generalization.py --run runs/repro-ood --output runs/repro-ood-reports/generalization-diagnostics.json
+```
+
+This reruns the published benchmark; it does not restore its held-out status for
+future decisions informed by these results.
+
 ## Next experiments
 
 1. Compare RL with extra SFT and alternative sampling temperatures at documented budgets.
 2. Run multiple training seeds with fixed settings; distinguish replication from new test evidence.
 3. Strengthen tonal conditioning and cross-prompt variety checks in a separately versioned task.
-4. Freeze a new protocol before evaluating the reserved composition and length splits.
+4. Build a separately versioned task with new held-out data before further model development.
 5. Add richer rhythm, phrasing, and a separately evaluated musicality criterion.
 
 No claim of novel methodology is made. Distributed execution, a full modern

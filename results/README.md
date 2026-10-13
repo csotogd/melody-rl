@@ -4,6 +4,82 @@ All results here were measured locally on an Apple M4 / 16 GB MacBook Air.
 No paid inference or cloud compute was used. Audio is a simple sine rendering of
 symbolic note sequences, not learned waveform generation.
 
+## Generalization with unchanged models
+
+[Open the overview](index.html) locally to compare ID, composition and length
+results, with links to all audio. The [OOD protocol](diagnosis/generalization-protocol.json)
+was committed before evaluation. The same three adapters were checked against the
+original frozen hashes before and after; there was no further training or tuning.
+The complete [execution manifest](generalization-experiment.json),
+[summary](generalization-summary.json) and [descriptive diagnostics](generalization-diagnostics.json)
+are public.
+
+### Unseen combination: G major and 4/4
+
+| Policy | Greedy | All stochastic samples | Sample repetition | Best of 4 |
+| --- | ---: | ---: | ---: | ---: |
+| SFT | 48/54 | 68/216 (31.5%) | 4.0% | 39/54 |
+| SFT + GRPO, constraint reward | 50/54 | 167/216 (77.3%) | 27.9% | 51/54 |
+| SFT + GRPO, diversity reward | 50/54 | 111/216 (51.4%) | 6.3% | 48/54 |
+
+[Every task and audio](generalization-composition.html). The procedural solver scores 54/54.
+
+Constraint RL minus SFT: **+45.8 percentage points**, paired task-bootstrap 95% interval **[+37.0, +53.7] points**.
+
+Diversity RL minus SFT: **+19.9 percentage points**, paired task-bootstrap 95% interval **[+13.0, +27.3] points**.
+
+### Unseen length: three bars
+
+| Policy | Greedy | All stochastic samples | Sample repetition | Best of 4 |
+| --- | ---: | ---: | ---: | ---: |
+| SFT | 0/162 | 8/648 (1.2%) | 4.9% | 8/162 |
+| SFT + GRPO, constraint reward | 2/162 | 38/648 (5.9%) | 29.7% | 33/162 |
+| SFT + GRPO, diversity reward | 71/162 | 61/648 (9.4%) | 8.5% | 51/162 |
+
+[Every task and audio](generalization-length.html). The procedural solver scores 162/162.
+
+Constraint RL minus SFT: **+4.6 percentage points**, paired task-bootstrap 95% interval **[+2.6, +6.8] points**.
+
+Diversity RL minus SFT: **+8.2 percentage points**, paired task-bootstrap 95% interval **[+6.0, +10.5] points**.
+
+Both OOD endpoints are reported without multiplicity adjustment. The task,
+not each of its four candidates, is the uncertainty unit. These intervals are
+conditional on one training seed. Best-of-four uses the same graded selector for
+all policies; repetition refers to all valid samples, averaged per task.
+
+### Failure diagnosis
+
+The length set is not a perfectly isolated length intervention: 27 of its 162
+tasks also use the withheld G-major/4/4 combination. The diagnostics therefore
+separate the 135 tasks with familiar key/meter pairs from those 27 tasks. The
+following length and failure counts are descriptive analysis after evaluation,
+not new confirmatory hypotheses.
+
+- **SFT:** 8/648 successful samples; 10 invalid and 0 token-truncated. Among valid samples, generated lengths are 1 bar: 1, 2 bars: 561, 3 bars: 74, 4 bars: 2. Most frequent failed constraints: bars (564), leap (326). Familiar key/meter pairs: 8/540; withheld combination: 0/108.
+- **SFT + GRPO, constraint reward:** 38/648 successful samples; 2 invalid and 0 token-truncated. Among valid samples, generated lengths are 2 bars: 583, 3 bars: 62, 4 bars: 1. Most frequent failed constraints: bars (584), leap (139). Familiar key/meter pairs: 35/540; withheld combination: 3/108.
+- **SFT + GRPO, diversity reward:** 61/648 successful samples; 2 invalid and 0 token-truncated. Among valid samples, generated lengths are 2 bars: 323, 3 bars: 233, 4 bars: 90. Most frequent failed constraints: bars (413), leap (257). Familiar key/meter pairs: 57/540; withheld combination: 4/108.
+
+Diversity RL's greedy improvement is uneven across sequence lengths: it solves
+53/81 three-bar 3/4 tasks (nine notes), and
+18/81 three-bar 4/4 tasks (twelve notes).
+Of its 162 greedy outputs, 53 contain two bars, 94 contain three and 15 contain
+four. The dominant two-note prefix remains A4 C5 on 146/162 tasks. These results
+show partial transfer, substantial length errors and persistent templates.
+Greedy solves 71/162 tasks, best-of-four 51/162, and raw samples 61/648; selecting
+between these metrics after the test would overstate performance.
+
+Errors can overlap. The fixed prompt itself illustrates a two-bar melody. This
+experiment does not isolate that prompt influence from training-length coverage;
+a prompt-example ablation has not been run. Passing key membership does not establish tonal understanding:
+C, D, E, G and A are shared across all supported keys. Prefix templates and richer
+musical structure remain limitations even when adjacent repetition is low.
+
+**All three test splits are now consumed.** No policy was changed in response to
+these scores. Further development must distinguish development data from new
+held-out tasks. Multiple training seeds and a compute-matched extra-SFT control
+remain untested; the repository does not claim broad research robustness or musical
+quality.
+
 ## Controlled reward study: completed
 
 The main result is a **held-out compliance improvement with a measurable reward
@@ -75,8 +151,7 @@ requirement is exact constraint satisfaction.
 
 All models were frozen before the first ID-test evaluation. The diversity reward
 was chosen after seeing validation reward exploitation, and before opening test.
-No retraining followed the test results. Composition and length tests remain
-reserved. More seeds, an extra-SFT compute control and sampling-temperature
+No retraining followed the test results. The later OOD study above consumes composition and length tests. More seeds, an extra-SFT compute control and sampling-temperature
 controls have not been run. The earlier failed experiments remain below.
 
 ## Local development study (historical, 24 tasks)
@@ -148,4 +223,4 @@ python scripts/export_rollouts.py --rollouts runs/local-study/grpo/rollouts.json
 ```
 
 The historical pilot used validation only. The later controlled study below has
-now evaluated test_id; composition and length tests remain reserved.
+now evaluated test_id; the later OOD study above also consumes composition and length tests.

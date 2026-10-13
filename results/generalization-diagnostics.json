@@ -1,0 +1,1957 @@
+{
+  "note": "Descriptive post-evaluation analysis, not a new confirmatory hypothesis or model-selection step. Failure counts can overlap.",
+  "splits": {
+    "test_composition": {
+      "sft": {
+        "greedy": {
+          "tasks": 54,
+          "completions": 54,
+          "successful_completions": 48,
+          "invalid_completions": 0,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "1": 27,
+            "2": 27
+          },
+          "wrong_bar_count_among_valid": 0,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 54
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 0,
+            "meter": 0,
+            "key": 0,
+            "range": 0,
+            "final": 0,
+            "leap": 6
+          },
+          "by_meter": {
+            "4/4": {
+              "tasks": 54,
+              "completions": 54,
+              "successful_completions": 48,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "1": 27,
+                "2": 27
+              },
+              "wrong_bar_count_among_valid": 0,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 54
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 0,
+                "meter": 0,
+                "key": 0,
+                "range": 0,
+                "final": 0,
+                "leap": 6
+              }
+            }
+          }
+        },
+        "sampled": {
+          "tasks": 54,
+          "completions": 216,
+          "successful_completions": 68,
+          "invalid_completions": 1,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "1": 111,
+            "2": 104
+          },
+          "wrong_bar_count_among_valid": 3,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "D5"
+              ],
+              "count": 13
+            },
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 12
+            },
+            {
+              "prefix": [
+                "A4",
+                "G4"
+              ],
+              "count": 11
+            },
+            {
+              "prefix": [
+                "D5",
+                "C5"
+              ],
+              "count": 9
+            },
+            {
+              "prefix": [
+                "G4",
+                "C5"
+              ],
+              "count": 8
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 3,
+            "meter": 5,
+            "key": 89,
+            "range": 66,
+            "final": 13,
+            "leap": 82
+          },
+          "by_meter": {
+            "4/4": {
+              "tasks": 54,
+              "completions": 216,
+              "successful_completions": 68,
+              "invalid_completions": 1,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "1": 111,
+                "2": 104
+              },
+              "wrong_bar_count_among_valid": 3,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "D5"
+                  ],
+                  "count": 13
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 12
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 11
+                },
+                {
+                  "prefix": [
+                    "D5",
+                    "C5"
+                  ],
+                  "count": 9
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "C5"
+                  ],
+                  "count": 8
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 3,
+                "meter": 5,
+                "key": 89,
+                "range": 66,
+                "final": 13,
+                "leap": 82
+              }
+            }
+          }
+        }
+      },
+      "grpo": {
+        "greedy": {
+          "tasks": 54,
+          "completions": 54,
+          "successful_completions": 50,
+          "invalid_completions": 0,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "1": 27,
+            "2": 27
+          },
+          "wrong_bar_count_among_valid": 0,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "A4"
+              ],
+              "count": 54
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 0,
+            "meter": 0,
+            "key": 0,
+            "range": 0,
+            "final": 0,
+            "leap": 4
+          },
+          "by_meter": {
+            "4/4": {
+              "tasks": 54,
+              "completions": 54,
+              "successful_completions": 50,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "1": 27,
+                "2": 27
+              },
+              "wrong_bar_count_among_valid": 0,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 54
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 0,
+                "meter": 0,
+                "key": 0,
+                "range": 0,
+                "final": 0,
+                "leap": 4
+              }
+            }
+          }
+        },
+        "sampled": {
+          "tasks": 54,
+          "completions": 216,
+          "successful_completions": 167,
+          "invalid_completions": 0,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "1": 108,
+            "2": 108
+          },
+          "wrong_bar_count_among_valid": 0,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "A4"
+              ],
+              "count": 64
+            },
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 41
+            },
+            {
+              "prefix": [
+                "G4",
+                "A4"
+              ],
+              "count": 33
+            },
+            {
+              "prefix": [
+                "A4",
+                "G4"
+              ],
+              "count": 29
+            },
+            {
+              "prefix": [
+                "C5",
+                "A4"
+              ],
+              "count": 20
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 0,
+            "meter": 0,
+            "key": 9,
+            "range": 14,
+            "final": 0,
+            "leap": 33
+          },
+          "by_meter": {
+            "4/4": {
+              "tasks": 54,
+              "completions": 216,
+              "successful_completions": 167,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "1": 108,
+                "2": 108
+              },
+              "wrong_bar_count_among_valid": 0,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 64
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 41
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "A4"
+                  ],
+                  "count": 33
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 29
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "A4"
+                  ],
+                  "count": 20
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 0,
+                "meter": 0,
+                "key": 9,
+                "range": 14,
+                "final": 0,
+                "leap": 33
+              }
+            }
+          }
+        }
+      },
+      "diverse": {
+        "greedy": {
+          "tasks": 54,
+          "completions": 54,
+          "successful_completions": 50,
+          "invalid_completions": 0,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "1": 27,
+            "2": 27
+          },
+          "wrong_bar_count_among_valid": 0,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 54
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 0,
+            "meter": 0,
+            "key": 0,
+            "range": 0,
+            "final": 0,
+            "leap": 4
+          },
+          "by_meter": {
+            "4/4": {
+              "tasks": 54,
+              "completions": 54,
+              "successful_completions": 50,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "1": 27,
+                "2": 27
+              },
+              "wrong_bar_count_among_valid": 0,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 54
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 0,
+                "meter": 0,
+                "key": 0,
+                "range": 0,
+                "final": 0,
+                "leap": 4
+              }
+            }
+          }
+        },
+        "sampled": {
+          "tasks": 54,
+          "completions": 216,
+          "successful_completions": 111,
+          "invalid_completions": 2,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "1": 101,
+            "2": 113
+          },
+          "wrong_bar_count_among_valid": 7,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 76
+            },
+            {
+              "prefix": [
+                "A4",
+                "G4"
+              ],
+              "count": 62
+            },
+            {
+              "prefix": [
+                "G4",
+                "C5"
+              ],
+              "count": 9
+            },
+            {
+              "prefix": [
+                "A4",
+                "D5"
+              ],
+              "count": 8
+            },
+            {
+              "prefix": [
+                "G4",
+                "A4"
+              ],
+              "count": 7
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 7,
+            "meter": 0,
+            "key": 48,
+            "range": 13,
+            "final": 12,
+            "leap": 61
+          },
+          "by_meter": {
+            "4/4": {
+              "tasks": 54,
+              "completions": 216,
+              "successful_completions": 111,
+              "invalid_completions": 2,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "1": 101,
+                "2": 113
+              },
+              "wrong_bar_count_among_valid": 7,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 76
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 62
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "C5"
+                  ],
+                  "count": 9
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "D5"
+                  ],
+                  "count": 8
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "A4"
+                  ],
+                  "count": 7
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 7,
+                "meter": 0,
+                "key": 48,
+                "range": 13,
+                "final": 12,
+                "leap": 61
+              }
+            }
+          }
+        }
+      }
+    },
+    "test_length": {
+      "sft": {
+        "greedy": {
+          "tasks": 162,
+          "completions": 162,
+          "successful_completions": 0,
+          "invalid_completions": 0,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "2": 162
+          },
+          "wrong_bar_count_among_valid": 162,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 146
+            },
+            {
+              "prefix": [
+                "A4",
+                "D4"
+              ],
+              "count": 16
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 162,
+            "meter": 0,
+            "key": 0,
+            "range": 6,
+            "final": 68,
+            "leap": 25
+          },
+          "by_meter": {
+            "3/4": {
+              "tasks": 81,
+              "completions": 81,
+              "successful_completions": 0,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 81
+              },
+              "wrong_bar_count_among_valid": 81,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 75
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "D4"
+                  ],
+                  "count": 6
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 81,
+                "meter": 0,
+                "key": 0,
+                "range": 6,
+                "final": 65,
+                "leap": 12
+              }
+            },
+            "4/4": {
+              "tasks": 81,
+              "completions": 81,
+              "successful_completions": 0,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 81
+              },
+              "wrong_bar_count_among_valid": 81,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 71
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "D4"
+                  ],
+                  "count": 10
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 81,
+                "meter": 0,
+                "key": 0,
+                "range": 0,
+                "final": 3,
+                "leap": 13
+              }
+            }
+          },
+          "by_key_meter_familiarity": {
+            "known_during_training": {
+              "tasks": 135,
+              "completions": 135,
+              "successful_completions": 0,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 135
+              },
+              "wrong_bar_count_among_valid": 135,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 119
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "D4"
+                  ],
+                  "count": 16
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 135,
+                "meter": 0,
+                "key": 0,
+                "range": 6,
+                "final": 68,
+                "leap": 21
+              }
+            },
+            "withheld_G_major_4_4": {
+              "tasks": 27,
+              "completions": 27,
+              "successful_completions": 0,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 27
+              },
+              "wrong_bar_count_among_valid": 27,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 27
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 27,
+                "meter": 0,
+                "key": 0,
+                "range": 0,
+                "final": 0,
+                "leap": 4
+              }
+            }
+          }
+        },
+        "sampled": {
+          "tasks": 162,
+          "completions": 648,
+          "successful_completions": 8,
+          "invalid_completions": 10,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "1": 1,
+            "2": 561,
+            "3": 74,
+            "4": 2
+          },
+          "wrong_bar_count_among_valid": 564,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 41
+            },
+            {
+              "prefix": [
+                "C5",
+                "A4"
+              ],
+              "count": 31
+            },
+            {
+              "prefix": [
+                "C5",
+                "D5"
+              ],
+              "count": 28
+            },
+            {
+              "prefix": [
+                "A4",
+                "G4"
+              ],
+              "count": 24
+            },
+            {
+              "prefix": [
+                "G4",
+                "C5"
+              ],
+              "count": 24
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 564,
+            "meter": 35,
+            "key": 242,
+            "range": 247,
+            "final": 182,
+            "leap": 326
+          },
+          "by_meter": {
+            "3/4": {
+              "tasks": 81,
+              "completions": 324,
+              "successful_completions": 6,
+              "invalid_completions": 5,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 253,
+                "3": 66
+              },
+              "wrong_bar_count_among_valid": 253,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 22
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "D5"
+                  ],
+                  "count": 20
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "A4"
+                  ],
+                  "count": 17
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "G4"
+                  ],
+                  "count": 13
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 11
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 253,
+                "meter": 34,
+                "key": 124,
+                "range": 126,
+                "final": 149,
+                "leap": 153
+              }
+            },
+            "4/4": {
+              "tasks": 81,
+              "completions": 324,
+              "successful_completions": 2,
+              "invalid_completions": 5,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "1": 1,
+                "2": 308,
+                "3": 8,
+                "4": 2
+              },
+              "wrong_bar_count_among_valid": 311,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 19
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "C5"
+                  ],
+                  "count": 17
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "D5"
+                  ],
+                  "count": 17
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "A4"
+                  ],
+                  "count": 14
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 13
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 311,
+                "meter": 1,
+                "key": 118,
+                "range": 121,
+                "final": 33,
+                "leap": 173
+              }
+            }
+          },
+          "by_key_meter_familiarity": {
+            "known_during_training": {
+              "tasks": 135,
+              "completions": 540,
+              "successful_completions": 8,
+              "invalid_completions": 7,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "1": 1,
+                "2": 459,
+                "3": 73
+              },
+              "wrong_bar_count_among_valid": 460,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 36
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "A4"
+                  ],
+                  "count": 26
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "D5"
+                  ],
+                  "count": 22
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 20
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "C5"
+                  ],
+                  "count": 19
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 460,
+                "meter": 35,
+                "key": 179,
+                "range": 210,
+                "final": 165,
+                "leap": 270
+              }
+            },
+            "withheld_G_major_4_4": {
+              "tasks": 27,
+              "completions": 108,
+              "successful_completions": 0,
+              "invalid_completions": 3,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 102,
+                "3": 1,
+                "4": 2
+              },
+              "wrong_bar_count_among_valid": 104,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "C5",
+                    "D5"
+                  ],
+                  "count": 6
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "D5"
+                  ],
+                  "count": 5
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "C5"
+                  ],
+                  "count": 5
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 5
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "A4"
+                  ],
+                  "count": 5
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 104,
+                "meter": 0,
+                "key": 63,
+                "range": 37,
+                "final": 17,
+                "leap": 56
+              }
+            }
+          }
+        }
+      },
+      "grpo": {
+        "greedy": {
+          "tasks": 162,
+          "completions": 162,
+          "successful_completions": 2,
+          "invalid_completions": 0,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "2": 158,
+            "3": 4
+          },
+          "wrong_bar_count_among_valid": 158,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "A4"
+              ],
+              "count": 153
+            },
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 9
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 158,
+            "meter": 13,
+            "key": 0,
+            "range": 5,
+            "final": 52,
+            "leap": 11
+          },
+          "by_meter": {
+            "3/4": {
+              "tasks": 81,
+              "completions": 81,
+              "successful_completions": 2,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 77,
+                "3": 4
+              },
+              "wrong_bar_count_among_valid": 77,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 74
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 7
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 77,
+                "meter": 13,
+                "key": 0,
+                "range": 4,
+                "final": 52,
+                "leap": 4
+              }
+            },
+            "4/4": {
+              "tasks": 81,
+              "completions": 81,
+              "successful_completions": 0,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 81
+              },
+              "wrong_bar_count_among_valid": 81,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 79
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 2
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 81,
+                "meter": 0,
+                "key": 0,
+                "range": 1,
+                "final": 0,
+                "leap": 7
+              }
+            }
+          },
+          "by_key_meter_familiarity": {
+            "known_during_training": {
+              "tasks": 135,
+              "completions": 135,
+              "successful_completions": 2,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 131,
+                "3": 4
+              },
+              "wrong_bar_count_among_valid": 131,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 126
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 9
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 131,
+                "meter": 13,
+                "key": 0,
+                "range": 5,
+                "final": 52,
+                "leap": 9
+              }
+            },
+            "withheld_G_major_4_4": {
+              "tasks": 27,
+              "completions": 27,
+              "successful_completions": 0,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 27
+              },
+              "wrong_bar_count_among_valid": 27,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 27
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 27,
+                "meter": 0,
+                "key": 0,
+                "range": 0,
+                "final": 0,
+                "leap": 2
+              }
+            }
+          }
+        },
+        "sampled": {
+          "tasks": 162,
+          "completions": 648,
+          "successful_completions": 38,
+          "invalid_completions": 2,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "2": 583,
+            "3": 62,
+            "4": 1
+          },
+          "wrong_bar_count_among_valid": 584,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "A4"
+              ],
+              "count": 158
+            },
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 112
+            },
+            {
+              "prefix": [
+                "G4",
+                "A4"
+              ],
+              "count": 96
+            },
+            {
+              "prefix": [
+                "C5",
+                "A4"
+              ],
+              "count": 91
+            },
+            {
+              "prefix": [
+                "A4",
+                "G4"
+              ],
+              "count": 78
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 584,
+            "meter": 38,
+            "key": 21,
+            "range": 64,
+            "final": 99,
+            "leap": 139
+          },
+          "by_meter": {
+            "3/4": {
+              "tasks": 81,
+              "completions": 324,
+              "successful_completions": 29,
+              "invalid_completions": 2,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 275,
+                "3": 47
+              },
+              "wrong_bar_count_among_valid": 275,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 72
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 57
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "A4"
+                  ],
+                  "count": 49
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "A4"
+                  ],
+                  "count": 48
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 42
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 275,
+                "meter": 37,
+                "key": 9,
+                "range": 36,
+                "final": 91,
+                "leap": 69
+              }
+            },
+            "4/4": {
+              "tasks": 81,
+              "completions": 324,
+              "successful_completions": 9,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 308,
+                "3": 15,
+                "4": 1
+              },
+              "wrong_bar_count_among_valid": 309,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 86
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 55
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "A4"
+                  ],
+                  "count": 47
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "A4"
+                  ],
+                  "count": 43
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 36
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 309,
+                "meter": 1,
+                "key": 12,
+                "range": 28,
+                "final": 8,
+                "leap": 70
+              }
+            }
+          },
+          "by_key_meter_familiarity": {
+            "known_during_training": {
+              "tasks": 135,
+              "completions": 540,
+              "successful_completions": 35,
+              "invalid_completions": 2,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 479,
+                "3": 58,
+                "4": 1
+              },
+              "wrong_bar_count_among_valid": 480,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 132
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 96
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "A4"
+                  ],
+                  "count": 80
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "A4"
+                  ],
+                  "count": 77
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 65
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 480,
+                "meter": 38,
+                "key": 13,
+                "range": 58,
+                "final": 96,
+                "leap": 118
+              }
+            },
+            "withheld_G_major_4_4": {
+              "tasks": 27,
+              "completions": 108,
+              "successful_completions": 3,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 104,
+                "3": 4
+              },
+              "wrong_bar_count_among_valid": 104,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "A4"
+                  ],
+                  "count": 26
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "A4"
+                  ],
+                  "count": 19
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 16
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 13
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "A4"
+                  ],
+                  "count": 11
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 104,
+                "meter": 0,
+                "key": 8,
+                "range": 6,
+                "final": 3,
+                "leap": 21
+              }
+            }
+          }
+        }
+      },
+      "diverse": {
+        "greedy": {
+          "tasks": 162,
+          "completions": 162,
+          "successful_completions": 71,
+          "invalid_completions": 0,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "2": 53,
+            "3": 94,
+            "4": 15
+          },
+          "wrong_bar_count_among_valid": 68,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 146
+            },
+            {
+              "prefix": [
+                "A4",
+                "G4"
+              ],
+              "count": 16
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 68,
+            "meter": 0,
+            "key": 0,
+            "range": 3,
+            "final": 9,
+            "leap": 22
+          },
+          "by_meter": {
+            "3/4": {
+              "tasks": 81,
+              "completions": 81,
+              "successful_completions": 53,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 6,
+                "3": 75
+              },
+              "wrong_bar_count_among_valid": 6,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 74
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 7
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 6,
+                "meter": 0,
+                "key": 0,
+                "range": 3,
+                "final": 9,
+                "leap": 12
+              }
+            },
+            "4/4": {
+              "tasks": 81,
+              "completions": 81,
+              "successful_completions": 18,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 47,
+                "3": 19,
+                "4": 15
+              },
+              "wrong_bar_count_among_valid": 62,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 72
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 9
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 62,
+                "meter": 0,
+                "key": 0,
+                "range": 0,
+                "final": 0,
+                "leap": 10
+              }
+            }
+          },
+          "by_key_meter_familiarity": {
+            "known_during_training": {
+              "tasks": 135,
+              "completions": 135,
+              "successful_completions": 64,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 39,
+                "3": 87,
+                "4": 9
+              },
+              "wrong_bar_count_among_valid": 48,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 119
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 16
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 48,
+                "meter": 0,
+                "key": 0,
+                "range": 3,
+                "final": 9,
+                "leap": 20
+              }
+            },
+            "withheld_G_major_4_4": {
+              "tasks": 27,
+              "completions": 27,
+              "successful_completions": 7,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 14,
+                "3": 7,
+                "4": 6
+              },
+              "wrong_bar_count_among_valid": 20,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 27
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 20,
+                "meter": 0,
+                "key": 0,
+                "range": 0,
+                "final": 0,
+                "leap": 2
+              }
+            }
+          }
+        },
+        "sampled": {
+          "tasks": 162,
+          "completions": 648,
+          "successful_completions": 61,
+          "invalid_completions": 2,
+          "truncated_completions": 0,
+          "valid_completions_by_actual_bar_count": {
+            "2": 323,
+            "3": 233,
+            "4": 90
+          },
+          "wrong_bar_count_among_valid": 413,
+          "top_two_note_prefixes_among_valid": [
+            {
+              "prefix": [
+                "A4",
+                "C5"
+              ],
+              "count": 190
+            },
+            {
+              "prefix": [
+                "A4",
+                "G4"
+              ],
+              "count": 174
+            },
+            {
+              "prefix": [
+                "C5",
+                "G4"
+              ],
+              "count": 33
+            },
+            {
+              "prefix": [
+                "G4",
+                "C5"
+              ],
+              "count": 28
+            },
+            {
+              "prefix": [
+                "G4",
+                "A4"
+              ],
+              "count": 23
+            }
+          ],
+          "constraint_failures_among_valid": {
+            "bars": 413,
+            "meter": 54,
+            "key": 90,
+            "range": 90,
+            "final": 92,
+            "leap": 257
+          },
+          "by_meter": {
+            "3/4": {
+              "tasks": 81,
+              "completions": 324,
+              "successful_completions": 49,
+              "invalid_completions": 1,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 117,
+                "3": 206
+              },
+              "wrong_bar_count_among_valid": 117,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 93
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 82
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "C5"
+                  ],
+                  "count": 16
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "A4"
+                  ],
+                  "count": 15
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "G4"
+                  ],
+                  "count": 14
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 117,
+                "meter": 50,
+                "key": 43,
+                "range": 37,
+                "final": 79,
+                "leap": 123
+              }
+            },
+            "4/4": {
+              "tasks": 81,
+              "completions": 324,
+              "successful_completions": 12,
+              "invalid_completions": 1,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 206,
+                "3": 27,
+                "4": 90
+              },
+              "wrong_bar_count_among_valid": 296,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 97
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 92
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "G4"
+                  ],
+                  "count": 19
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "C5"
+                  ],
+                  "count": 12
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "D5"
+                  ],
+                  "count": 12
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 296,
+                "meter": 4,
+                "key": 47,
+                "range": 53,
+                "final": 13,
+                "leap": 134
+              }
+            }
+          },
+          "by_key_meter_familiarity": {
+            "known_during_training": {
+              "tasks": 135,
+              "completions": 540,
+              "successful_completions": 57,
+              "invalid_completions": 2,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 246,
+                "3": 223,
+                "4": 69
+              },
+              "wrong_bar_count_among_valid": 315,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 159
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 145
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "G4"
+                  ],
+                  "count": 28
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "C5"
+                  ],
+                  "count": 24
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "A4"
+                  ],
+                  "count": 19
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 315,
+                "meter": 54,
+                "key": 61,
+                "range": 75,
+                "final": 89,
+                "leap": 216
+              }
+            },
+            "withheld_G_major_4_4": {
+              "tasks": 27,
+              "completions": 108,
+              "successful_completions": 4,
+              "invalid_completions": 0,
+              "truncated_completions": 0,
+              "valid_completions_by_actual_bar_count": {
+                "2": 77,
+                "3": 10,
+                "4": 21
+              },
+              "wrong_bar_count_among_valid": 98,
+              "top_two_note_prefixes_among_valid": [
+                {
+                  "prefix": [
+                    "A4",
+                    "C5"
+                  ],
+                  "count": 31
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "G4"
+                  ],
+                  "count": 29
+                },
+                {
+                  "prefix": [
+                    "C5",
+                    "G4"
+                  ],
+                  "count": 5
+                },
+                {
+                  "prefix": [
+                    "G4",
+                    "C5"
+                  ],
+                  "count": 4
+                },
+                {
+                  "prefix": [
+                    "A4",
+                    "D4"
+                  ],
+                  "count": 4
+                }
+              ],
+              "constraint_failures_among_valid": {
+                "bars": 98,
+                "meter": 0,
+                "key": 29,
+                "range": 15,
+                "final": 3,
+                "leap": 41
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
