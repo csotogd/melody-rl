@@ -1,0 +1,74 @@
+{
+  "status_at_registration": "Before first model evaluation on test_composition or test_length",
+  "scope": "Evaluation of the same three fixed policies; no additional training or tuning.",
+  "splits": {
+    "test_composition": {
+      "n": 54,
+      "shift": "G major with 4/4, one or two bars; this combination was withheld during training"
+    },
+    "test_length": {
+      "n": 162,
+      "shift": "Three bars, absent from training; includes both known and withheld key/meter combinations"
+    }
+  },
+  "primary_endpoint": "Per-task fraction of four temperature-1 completions satisfying all six constraints, before selection, reported separately for each split.",
+  "secondary_endpoints": [
+    "greedy success",
+    "best-of-four success using the same graded selector",
+    "validity",
+    "truncation",
+    "adjacent repetition",
+    "per-constraint failures",
+    "generated tokens and time"
+  ],
+  "uncertainty": "Paired task-level percentile bootstrap, 10000 resamples, seed42; two OOD endpoints reported without multiplicity adjustment. One training seed; no claim of training-seed robustness.",
+  "comparisons": [
+    "SFT versus graded GRPO",
+    "SFT versus diversity GRPO",
+    "graded versus diversity GRPO"
+  ],
+  "controls": "Procedural solver on all tasks; verify adapter checksums before and after. Full splits, no cherry-picking or early stopping based on scores.",
+  "failure_policy": "Stop on execution errors. Report unfavorable scores. No training changes in response to test results.",
+  "paid_compute_eur": 0,
+  "config": {
+    "model": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "seed": 42,
+    "dataset_seed": 42,
+    "device": "auto",
+    "dtype": "float32",
+    "rank": 8,
+    "lora_alpha": 16,
+    "target_modules": [
+      "q_proj",
+      "v_proj"
+    ],
+    "max_new_tokens": 96,
+    "sft_steps": 348,
+    "sft_lr": 0.0001,
+    "rl_steps": 128,
+    "rl_lr": 5e-05,
+    "group_size": 4,
+    "clip": 0.2,
+    "beta": 0.02,
+    "reward": "graded",
+    "eval_limit": 48,
+    "gradient_checkpointing": true,
+    "rollout_batch_size": 4
+  },
+  "frozen_adapter_sha256": {
+    "sft": {
+      "runs/local-study/sft/adapter/adapter_model.safetensors": "74cd8fa48e1c8202ccb230732486a299ad2cbc03f436dbb66be97c9f36a7f47f"
+    },
+    "graded": {
+      "runs/extended-study/grpo/adapter/adapter_model.safetensors": "9102c8d5e51d6f8cf6f8f4fcb9304513ce536b9feb3dd56b7e28544367bd4750"
+    },
+    "diverse": {
+      "runs/diversity-study/grpo/adapter/adapter_model.safetensors": "e545bfd836370db9c415968eb680a023911434b06050bd804be3da5c39cb3b39"
+    }
+  },
+  "data_sha256": {
+    "test_composition": "af69d8bfcb6a2c162a4c6573cc04ccbb0dd37b863e4e8d19252f30f7344c5c06",
+    "test_length": "e455aac3f3a98b60140f8095d4b02439bd25d6e52fe0c34b5a45dbf15313ca67"
+  }
+}

@@ -32,13 +32,13 @@ def build(run, output, split="validation"):
     stages.extend((path.name, f"SFT · best-of-{path.name[6:]}") for path in sorted(run.glob("bestof*")) if path.is_dir())
     stages.append(("grpo-sampled", "SFT + GRPO · reglas · best-of-4"))
     stages.append(("diverse-sampled", "SFT + GRPO · variedad · best-of-4"))
-    if split == "test_id":
-        stages = [("test-id-sft-greedy", "SFT · determinista"),
-                  ("test-id-grpo-greedy", "SFT + GRPO · reglas · determinista"),
-                  ("test-id-diverse-greedy", "SFT + GRPO · variedad · determinista"),
-                  ("test-id-sft-sampled", "SFT · best-of-4"),
-                  ("test-id-grpo-sampled", "SFT + GRPO · reglas · best-of-4"),
-                  ("test-id-diverse-sampled", "SFT + GRPO · variedad · best-of-4")]
+    if split != "validation":
+        prefix = split.replace("_", "-")
+        stages = [(f"{prefix}-{policy}-{mode}", f"{label} · {mode_label}")
+                  for mode, mode_label in (("greedy", "determinista"), ("sampled", "best-of-4"))
+                  for policy, label in (("sft", "SFT"), ("grpo", "SFT + GRPO · reglas"),
+                                        ("diverse", "SFT + GRPO · variedad"))]
+        stages.append((f"{prefix}-rules", "Generador por reglas"))
     results = []
     for folder, label in stages:
         source = run / folder
@@ -74,7 +74,7 @@ def build(run, output, split="validation"):
             trainings.append((name, summary))
     esc = html.escape
     lines = ['<!doctype html><html lang="es"><meta charset="utf-8">',
-             '<meta name="viewport" content="width=device-width, initial-scale=1"><title>melody-rl · piloto local</title>',
+             '<meta name="viewport" content="width=device-width, initial-scale=1"><title>melody-rl · resultados locales</title>',
              '<style>body{font:16px/1.6 system-ui,sans-serif;background:#f5f4ef;color:#182823;margin:0}main{max-width:1100px;margin:auto;padding:48px 24px}h1{font-size:48px;letter-spacing:-2px;margin:8px 0}h2{margin-top:40px}.tag{color:#496a5d;text-transform:uppercase;letter-spacing:2px;font-size:12px}.intro{max-width:750px}.notice{border-left:4px solid #b08330;padding:12px 18px;background:#fff9e9}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;background:white}th,td{text-align:left;padding:14px;border-bottom:1px solid #ddd}th{font-size:13px}code,pre{font:14px/1.5 ui-monospace,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef1ed;padding:12px;border-radius:8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.card{background:white;padding:20px;border:1px solid #ddd;border-radius:12px}.pass{color:#276848}.fail{color:#9c492e}audio{width:100%;height:36px}a{color:#265a4a}.muted{color:#59685f;font-size:14px}details{margin:12px 0}footer{margin-top:48px;border-top:1px solid #ccc;padding-top:16px}</style><main>',
              f'<div class="tag">Entrenamiento local · {esc(split)}</div><h1>melody-rl</h1>',
              '<p class="intro">¿Puede el post-training mejorar el cumplimiento de instrucciones musicales? Qwen3-0.6B + LoRA + GRPO, con recompensas verificables y melodías cortas.</p>',
@@ -136,12 +136,15 @@ def build(run, output, split="validation"):
     for name, _ in trainings:
         lines.append(f'<li>{name.upper()}: <a href="{assets.name}/{name}/train.jsonl">registro de entrenamiento</a></li>')
     for mode in ("greedy", "sampled", "diverse-greedy", "diverse-sampled", "reward-ablation"):
-        comparison = run / f'{"test-id" if split == "test_id" else "validation"}-{mode}-comparison.json'
+        comparison = run / f'{split.replace("_", "-")}-{mode}-comparison.json'
         if comparison.exists():
             shutil.copy2(comparison, assets / comparison.name)
             lines.append(f'<li><a href="{assets.name}/{comparison.name}">Diferencias e intervalos por tarea · {mode}</a></li>')
-    test_note = ('El test ID se evaluó con las políticas finales fijadas; los tests de composición y longitud siguen reservados.'
-                 if (run / "test-id-grpo-sampled/summary.json").exists() else 'No se han evaluado los conjuntos de test reservados.')
+    if split in ("test_composition", "test_length"):
+        test_note = 'Este informe evalúa generalización con modelos fijados. El test mostrado ya está consumido; no se debe usar para ajustar estos modelos.'
+    else:
+        test_note = ('El test ID se evaluó con las políticas finales fijadas; el estado de los otros tests se documenta en el README de resultados.'
+                     if (run / "test-id-grpo-sampled/summary.json").exists() else 'El uso de los tests se documenta en el README de resultados.')
     lines.append(f'</ul><p class="muted">Datos sintéticos propios · modelo Qwen3-0.6B · código MIT · {test_note}</p></footer></main></html>')
     output.write_text('\n'.join(lines))
     print(output.resolve())
@@ -151,6 +154,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--run", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--split", choices=("validation", "test_id"), default="validation")
+    parser.add_argument("--split", choices=("validation", "test_id", "test_composition", "test_length"), default="validation")
     args = parser.parse_args()
     build(args.run, args.output, args.split)
